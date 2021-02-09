@@ -36,15 +36,15 @@ namespace QuantLib {
     class CalibratedModel::CalibrationFunction : public CostFunction {
       public:
         CalibrationFunction(CalibratedModel* model,
-                            const vector<ext::shared_ptr<CalibrationHelperBase> >& h,
+                            const vector<ext::shared_ptr<CalibrationHelper> >& h,
                             const vector<Real>& weights,
                             const Projection& projection)
             : model_(model, null_deleter()), instruments_(h),
               weights_(weights), projection_(projection) {}
 
-        virtual ~CalibrationFunction() {}
+        ~CalibrationFunction() override {}
 
-        virtual Real value(const Array& params) const {
+        Real value(const Array& params) const override {
             model_->setParams(projection_.include(params));
             Real value = 0.0;
             for (Size i=0; i<instruments_.size(); i++) {
@@ -54,7 +54,7 @@ namespace QuantLib {
             return std::sqrt(value);
         }
 
-        virtual Disposable<Array> values(const Array& params) const {
+        Disposable<Array> values(const Array& params) const override {
             model_->setParams(projection_.include(params));
             Array values(instruments_.size());
             for (Size i=0; i<instruments_.size(); i++) {
@@ -64,11 +64,11 @@ namespace QuantLib {
             return values;
         }
 
-        virtual Real finiteDifferenceEpsilon() const { return 1e-6; }
+        Real finiteDifferenceEpsilon() const override { return 1e-6; }
 
       private:
         ext::shared_ptr<CalibratedModel> model_;
-        const vector<ext::shared_ptr<CalibrationHelperBase> >& instruments_;
+        const vector<ext::shared_ptr<CalibrationHelper> >& instruments_;
         vector<Real> weights_;
         const Projection projection_;
     };
@@ -80,15 +80,15 @@ namespace QuantLib {
                     const Constraint& additionalConstraint,
                     const vector<Real>& weights,
                     const vector<bool>& fixParameters) {
-        vector<ext::shared_ptr<CalibrationHelperBase> > tmp(instruments.size());
+        vector<ext::shared_ptr<CalibrationHelper> > tmp(instruments.size());
         for (Size i=0; i<instruments.size(); ++i)
-            tmp[i] = ext::static_pointer_cast<CalibrationHelperBase>(instruments[i]);
+            tmp[i] = ext::static_pointer_cast<CalibrationHelper>(instruments[i]);
         calibrate(tmp, method, endCriteria, additionalConstraint,
                   weights, fixParameters);
     }
 
     void CalibratedModel::calibrate(
-            const vector<ext::shared_ptr<CalibrationHelperBase> >& instruments,
+            const vector<ext::shared_ptr<CalibrationHelper> >& instruments,
             OptimizationMethod& method,
             const EndCriteria& endCriteria,
             const Constraint& additionalConstraint,
@@ -116,7 +116,7 @@ namespace QuantLib {
                    prms.size() << ") and fixed-parameter specs (" <<
                    fixParameters.size() << ")");
         vector<bool> all(prms.size(), false);
-        Projection proj(prms,fixParameters.size()>0 ? fixParameters : all);
+        Projection proj(prms, !fixParameters.empty() ? fixParameters : all);
         CalibrationFunction f(this,instruments,w,proj);
         ProjectedConstraint pc(c,proj);
         Problem prob(f, pc, proj.project(prms));
@@ -132,15 +132,15 @@ namespace QuantLib {
     Real CalibratedModel::value(
                 const Array& params,
                 const vector<ext::shared_ptr<BlackCalibrationHelper> >& instruments) {
-        vector<ext::shared_ptr<CalibrationHelperBase> > tmp(instruments.size());
+        vector<ext::shared_ptr<CalibrationHelper> > tmp(instruments.size());
         for (Size i=0; i<instruments.size(); ++i)
-            tmp[i] = ext::static_pointer_cast<CalibrationHelperBase>(instruments[i]);
+            tmp[i] = ext::static_pointer_cast<CalibrationHelper>(instruments[i]);
         return value(params, tmp);
     }
 
     Real CalibratedModel::value(
                 const Array& params,
-                const vector<ext::shared_ptr<CalibrationHelperBase> >& instruments) {
+                const vector<ext::shared_ptr<CalibrationHelper> >& instruments) {
         vector<Real> w = vector<Real>(instruments.size(), 1.0);
         Projection p(params);
         CalibrationFunction f(this, instruments, w, p);

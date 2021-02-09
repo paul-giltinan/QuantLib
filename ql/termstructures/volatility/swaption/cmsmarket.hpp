@@ -50,7 +50,7 @@ namespace QuantLib {
             const Handle<YieldTermStructure>& discountingTS);
         //! \name LazyObject interface
         //@{
-        void update() { LazyObject::update();}
+        void update() override { LazyObject::update(); }
         //@}
         // called during calibration procedure
         void reprice(const Handle<SwaptionVolatilityStructure>& volStructure,
@@ -71,11 +71,9 @@ namespace QuantLib {
         Disposable<Array> weightedFwdNpvErrors(const Matrix& weights);
 
       private:
-        void performCalculations() const;
-        Real weightedMean(const Matrix& var,
-                          const Matrix& weights);
-        Disposable<Array> weightedMeans(const Matrix& var,
-                                        const Matrix& weights);
+        void performCalculations() const override;
+        Real weightedMean(const Matrix& var, const Matrix& weights) const;
+        Disposable<Array> weightedMeans(const Matrix& var, const Matrix& weights) const;
 
         std::vector<Period> swapLengths_;
         std::vector<ext::shared_ptr<SwapIndex> > swapIndexes_;

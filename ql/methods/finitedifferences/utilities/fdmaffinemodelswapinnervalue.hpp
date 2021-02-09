@@ -47,8 +47,8 @@ namespace QuantLib {
             const ext::shared_ptr<FdmMesher>& mesher,
             Size direction);
 
-        Real innerValue(const FdmLinearOpIterator& iter, Time t);
-        Real avgInnerValue(const FdmLinearOpIterator& iter, Time t);
+        Real innerValue(const FdmLinearOpIterator& iter, Time t) override;
+        Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) override;
 
       private:
         Disposable<Array> getState(
@@ -131,8 +131,7 @@ namespace QuantLib {
 
         Real npv = 0.0;
         for (Size j = 0; j < 2; j++) {
-            for (Leg::const_iterator i = swap_->leg(j).begin();
-                 i != swap_->leg(j).end(); ++i) {
+            for (auto i = swap_->leg(j).begin(); i != swap_->leg(j).end(); ++i) {
                 npv += ext::dynamic_pointer_cast<Coupon>(*i)
                                     ->accrualStartDate() >= iterExerciseDate
                             ? (*i)->amount() * disTs_->discount((*i)->date())

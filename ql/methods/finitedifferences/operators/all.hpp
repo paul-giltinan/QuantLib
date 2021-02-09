@@ -8,8 +8,10 @@
 #include <ql/methods/finitedifferences/operators/fdmg2op.hpp>
 #include <ql/methods/finitedifferences/operators/fdmhestonhullwhiteop.hpp>
 #include <ql/methods/finitedifferences/operators/fdmhestonop.hpp>
+#include <ql/methods/finitedifferences/operators/fdmcirop.hpp>
 #include <ql/methods/finitedifferences/operators/fdmhullwhiteop.hpp>
 #include <ql/methods/finitedifferences/operators/fdmlinearopcomposite.hpp>
+#include <ql/methods/finitedifferences/operators/fdmlocalvolfwdop.hpp>
 #include <ql/methods/finitedifferences/operators/fdmornsteinuhlenbeckop.hpp>
 #include <ql/methods/finitedifferences/operators/fdmlinearop.hpp>
 #include <ql/methods/finitedifferences/operators/fdmlinearopiterator.hpp>

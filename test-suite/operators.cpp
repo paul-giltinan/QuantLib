@@ -32,12 +32,6 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-namespace {
-
-Real average = 0.0, sigma = 1.0;
-
-}
-
 
 void OperatorTest::testTridiagonal() {
 
@@ -124,6 +118,8 @@ void OperatorTest::testTridiagonal() {
 void OperatorTest::testConsistency() {
 
     BOOST_TEST_MESSAGE("Testing differential operators...");
+
+    Real average = 0.0, sigma = 1.0;
 
     NormalDistribution normal(average,sigma);
     CumulativeNormalDistribution cum(average,sigma);
@@ -231,7 +227,7 @@ void OperatorTest::testBSMOperatorConsistency() {
 
 
 test_suite* OperatorTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Operator tests");
+    auto* suite = BOOST_TEST_SUITE("Operator tests");
     suite->add(QUANTLIB_TEST_CASE(&OperatorTest::testTridiagonal));
     // FLOATING_POINT_EXCEPTION
     suite->add(QUANTLIB_TEST_CASE(&OperatorTest::testConsistency));

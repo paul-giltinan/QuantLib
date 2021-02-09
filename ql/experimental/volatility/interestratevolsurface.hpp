@@ -48,6 +48,7 @@ namespace QuantLib {
                      constructor must manage their own reference date
                      by overriding the referenceDate() method.
         */
+        explicit
         InterestRateVolSurface(const ext::shared_ptr<InterestRateIndex>&,
                                BusinessDayConvention bdc = Following,
                                const DayCounter& dc = DayCounter());
@@ -72,7 +73,7 @@ namespace QuantLib {
         const ext::shared_ptr<InterestRateIndex>& index() const;
         //! \name Visitability
         //@{
-        virtual void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
       protected:
         ext::shared_ptr<InterestRateIndex> index_;

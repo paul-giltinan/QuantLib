@@ -58,7 +58,7 @@ namespace QuantLib {
         }
 
       protected:
-        void performCalculations() const {
+        void performCalculations() const override {
             ext::shared_ptr<FdmLinearOpComposite>op(
                 new FdmKlugeExtOUOp(solverDesc_.mesher,
                                     klugeOUProcess_.currentLink(),
@@ -76,7 +76,8 @@ namespace QuantLib {
         const FdmSchemeDesc schemeDesc_;
 
         mutable ext::shared_ptr<FdmNdimSolver<N> > solver_;
-        BOOST_STATIC_ASSERT(N >= 3); // KlugeExtOU solver can't be applied on meshes
+        BOOST_STATIC_ASSERT(N >= 3); // NOLINT(readability-simplify-boolean-expr)
+                                     // KlugeExtOU solver can't be applied on meshes
                                      // with less than three dimensions
     };
 }

@@ -34,11 +34,12 @@ namespace QuantLib {
 
     class IntegralCDOEngine : public SyntheticCDO::engine {
     public:
-        IntegralCDOEngine(const Handle<YieldTermStructure>& discountCurve, 
-                          Period stepSize = 3*Months) 
+        explicit IntegralCDOEngine(const Handle<YieldTermStructure>& discountCurve, 
+                                   Period stepSize = 3*Months) 
         : stepSize_(stepSize), discountCurve_(discountCurve) {}
-        void calculate() const;
-    protected:
+        void calculate() const override;
+
+      protected:
         Period stepSize_;
         Handle<YieldTermStructure> discountCurve_;
     };

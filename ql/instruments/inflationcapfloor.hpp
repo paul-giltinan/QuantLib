@@ -66,8 +66,8 @@ namespace QuantLib {
                  const std::vector<Rate>& strikes);
         //! \name Instrument interface
         //@{
-        bool isExpired() const;
-        void setupArguments(PricingEngine::arguments*) const;
+        bool isExpired() const override;
+        void setupArguments(PricingEngine::arguments*) const override;
         //@}
         //! \name Inspectors
         //@{
@@ -80,7 +80,7 @@ namespace QuantLib {
         Date maturityDate() const;
         ext::shared_ptr<YoYInflationCoupon> lastYoYInflationCoupon() const;
         //! Returns the n-th optionlet as a cap/floor with only one cash flow.
-        ext::shared_ptr<YoYInflationCapFloor> optionlet(const Size n) const;
+        ext::shared_ptr<YoYInflationCapFloor> optionlet(Size n) const;
         //@}
         virtual Rate atmRate(const YieldTermStructure& discountCurve) const;
         //! implied term volatility
@@ -148,7 +148,7 @@ namespace QuantLib {
         std::vector<Real> gearings;
         std::vector<Real> spreads;
         std::vector<Real> nominals;
-        void validate() const;
+        void validate() const override;
     };
 
     //! base class for cap/floor engines

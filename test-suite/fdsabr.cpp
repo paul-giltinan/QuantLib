@@ -61,8 +61,7 @@ namespace {
 
             const Real logAlpha = std::log(alpha_);
 
-            SobolBrownianBridgeRsg rsg(2, timeSteps,
-                SobolBrownianGenerator::Diagonal, 12345u);
+            SobolBrownianBridgeRsg rsg(2, timeSteps, SobolBrownianGenerator::Diagonal, 12345U);
 
             GeneralStatistics stats;
 
@@ -177,7 +176,7 @@ void FdSabrTest::testFdmSabrOp() {
         const Real putPdeImplVol =
             optionPut.impliedVolatility(optionPut.NPV(), bsProcess, 1e-6);
 
-        const boost::function<Real(Real)> mcSabr(
+        const ext::function<Real(Real)> mcSabr(
             SabrMonteCarloPricer(f0, maturityTime, putPayoff,
                                  alpha, beta, nu, rho));
 
@@ -275,7 +274,7 @@ void FdSabrTest::testFdmSabrCevPricing() {
 }
 
 void FdSabrTest::testFdmSabrVsVolApproximation() {
-    BOOST_TEST_MESSAGE("Testing FDM Sabr vs Approximations ...");
+    BOOST_TEST_MESSAGE("Testing FDM SABR vs approximations...");
 
     SavedSettings backup;
 
@@ -378,7 +377,7 @@ namespace {
 }
 
 void FdSabrTest::testOosterleeTestCaseIV() {
-    BOOST_TEST_MESSAGE("Testing Chen, Oosterlee and Weide test case IV ...");
+    BOOST_TEST_MESSAGE("Testing Chen, Oosterlee and Weide test case IV...");
 
     SavedSettings backup;
 
@@ -445,7 +444,7 @@ void FdSabrTest::testOosterleeTestCaseIV() {
 }
 
 void FdSabrTest::testBenchOpSabrCase() {
-    BOOST_TEST_MESSAGE("Testing SABR BenchOp problem ...");
+    BOOST_TEST_MESSAGE("Testing SABR BenchOp problem...");
 
     /*
      * von Sydow, L, Milovanović, S, Larsson, E, In't Hout, K,
@@ -532,7 +531,7 @@ void FdSabrTest::testBenchOpSabrCase() {
 }
 
 test_suite* FdSabrTest::suite(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("Finite Difference SABR tests");
+    auto* suite = BOOST_TEST_SUITE("Finite Difference SABR tests");
 
     suite->add(QUANTLIB_TEST_CASE(&FdSabrTest::testFdmSabrOp));
     suite->add(QUANTLIB_TEST_CASE(&FdSabrTest::testFdmSabrCevPricing));

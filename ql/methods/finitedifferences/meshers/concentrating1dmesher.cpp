@@ -2,7 +2,7 @@
 
 /*
  Copyright (C) 2009 Ralph Schreyer
- Copyright (C) 2014 Johannes Goettker-Schnetmann
+ Copyright (C) 2014 Johannes Göttker-Schnetmann
  Copyright (C) 2014 Klaus Spanderen
  Copyright (C) 2015 Peter Caspers
 
@@ -77,10 +77,9 @@ namespace QuantLib {
                 if (!close(cPoint, start) && !close(cPoint, end)) {
                     const Real z0 = -c1 / (c2 - c1);
                     const Real u0 =
-                        std::max(
-                            std::min(static_cast<int>(z0 * (size - 1) + 0.5),
-                                static_cast<int>(size) - 2),
-                            1) /
+                        std::max(std::min(std::lround(z0 * (size - 1)),
+                                          static_cast<long>(size) - 2),
+                                 1L) /
                         ((Real)(size - 1));
                     u.push_back(u0);
                     z.push_back(z0);
@@ -150,7 +149,7 @@ namespace QuantLib {
 
     Concentrating1dMesher::Concentrating1dMesher(
         Real start, Real end, Size size,
-        const std::vector<boost::tuple<Real, Real, bool> >& cPoints,
+        const std::vector<ext::tuple<Real, Real, bool> >& cPoints,
         Real tol)
     : Fdm1dMesher(size) {
         using namespace ext::placeholders;
@@ -158,10 +157,9 @@ namespace QuantLib {
         QL_REQUIRE(end > start, "end must be larger than start");
 
         std::vector<Real> points, betas;
-        for (std::vector<boost::tuple<Real, Real, bool> >::const_iterator
-                iter = cPoints.begin(); iter != cPoints.end(); ++iter) {
-            points.push_back(iter->get<0>());
-            betas.push_back(square<Real>()(iter->get<1>()*(end-start)));
+        for (auto iter = cPoints.begin(); iter != cPoints.end(); ++iter) {
+            points.push_back(ext::get<0>(*iter));
+            betas.push_back(square<Real>()(ext::get<1>(*iter)*(end-start)));
         }
 
         // get scaling factor a so that y(1) = end
@@ -200,7 +198,7 @@ namespace QuantLib {
         std::vector<std::pair<Real, Real> > w(1, std::make_pair(0.0, 0.0));
 
         for (Size i=0; i < points.size(); ++i) {
-            if (cPoints[i].get<2>() && points[i] > start && points[i] < end) {
+            if (ext::get<2>(cPoints[i]) && points[i] > start && points[i] < end) {
 
                 const Size j = std::distance(y.begin(),
                         std::lower_bound(y.begin(), y.end(), points[i]));

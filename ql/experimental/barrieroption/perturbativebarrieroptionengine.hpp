@@ -39,11 +39,12 @@ namespace QuantLib {
     */
     class PerturbativeBarrierOptionEngine : public BarrierOption::engine  {
       public:
-        PerturbativeBarrierOptionEngine(
+        explicit PerturbativeBarrierOptionEngine(
                      const ext::shared_ptr<GeneralizedBlackScholesProcess>&,
                      Natural order = 1,
                      bool zeroGamma = false);
-        void calculate() const;
+        void calculate() const override;
+
       private:
         ext::shared_ptr<GeneralizedBlackScholesProcess> process_;
         Natural order_;

@@ -87,7 +87,7 @@ namespace QuantLib {
       public:
         CalibratedModel(Size nArguments);
 
-        void update() {
+        void update() override {
             generateArguments();
             notifyObservers();
         }
@@ -97,14 +97,17 @@ namespace QuantLib {
             satisfied in addition to the constraints of the model.
         */
         virtual void calibrate(
-                const std::vector<ext::shared_ptr<CalibrationHelperBase> >&,
+                const std::vector<ext::shared_ptr<CalibrationHelper> >&,
                 OptimizationMethod& method,
                 const EndCriteria& endCriteria,
                 const Constraint& constraint = Constraint(),
                 const std::vector<Real>& weights = std::vector<Real>(),
                 const std::vector<bool>& fixParameters = std::vector<bool>());
 
-        // for backward compatibility
+        /*! \deprecated Use the other overload.
+                        Deprecated in version 1.18.
+        */
+        QL_DEPRECATED
         virtual void calibrate(
                 const std::vector<ext::shared_ptr<BlackCalibrationHelper> >&,
                 OptimizationMethod& method,
@@ -114,9 +117,12 @@ namespace QuantLib {
                 const std::vector<bool>& fixParameters = std::vector<bool>());
 
         Real value(const Array& params,
-                   const std::vector<ext::shared_ptr<CalibrationHelperBase> >&);
+                   const std::vector<ext::shared_ptr<CalibrationHelper> >&);
 
-        // for backward compatibility
+        /*! \deprecated Use the other overload.
+                        Deprecated in version 1.18.
+        */
+        QL_DEPRECATED
         Real value(const Array& params,
                    const std::vector<ext::shared_ptr<BlackCalibrationHelper> >&);
 
@@ -182,7 +188,7 @@ namespace QuantLib {
             explicit Impl(const std::vector<Parameter>& arguments)
             : arguments_(arguments) {}
 
-            bool test(const Array& params) const {
+            bool test(const Array& params) const override {
                 Size k=0;
                 for (Size i=0; i<arguments_.size(); i++) {
                     Size size = arguments_[i].size();
@@ -195,7 +201,7 @@ namespace QuantLib {
                 return true;
             }
 
-            Array upperBound(const Array &params) const {
+            Array upperBound(const Array& params) const override {
                 Size k = 0, k2 = 0;
                 Size totalSize = 0;
                 for (Size i = 0; i < arguments_.size(); i++) {
@@ -215,7 +221,7 @@ namespace QuantLib {
                 return result;
             }
 
-            Array lowerBound(const Array &params) const {
+            Array lowerBound(const Array& params) const override {
                 Size k = 0, k2 = 0;
                 Size totalSize = 0;
                 for (Size i = 0; i < arguments_.size(); i++) {

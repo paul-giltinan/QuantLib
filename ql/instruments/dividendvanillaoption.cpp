@@ -20,7 +20,7 @@
 #include <ql/instruments/dividendvanillaoption.hpp>
 #include <ql/instruments/impliedvolatility.hpp>
 #include <ql/pricingengines/vanilla/analyticdividendeuropeanengine.hpp>
-#include <ql/pricingengines/vanilla/fddividendamericanengine.hpp>
+#include <ql/pricingengines/vanilla/fdblackscholesvanillaengine.hpp>
 #include <ql/utilities/dataformatters.hpp>
 #include <ql/cashflows/cashflowvectors.hpp>
 #include <ql/exercise.hpp>
@@ -59,8 +59,7 @@ namespace QuantLib {
             engine.reset(new AnalyticDividendEuropeanEngine(newProcess));
             break;
           case Exercise::American:
-            engine.reset(new FDDividendAmericanEngine<CrankNicolson>(
-                                                                 newProcess));
+            engine.reset(new FdBlackScholesVanillaEngine(newProcess));
             break;
           case Exercise::Bermudan:
             QL_FAIL("engine not available for Bermudan option with dividends");
@@ -83,9 +82,8 @@ namespace QuantLib {
                                        PricingEngine::arguments* args) const {
         OneAssetOption::setupArguments(args);
 
-        DividendVanillaOption::arguments* arguments =
-            dynamic_cast<DividendVanillaOption::arguments*>(args);
-        QL_REQUIRE(arguments != 0, "wrong engine type");
+        auto* arguments = dynamic_cast<DividendVanillaOption::arguments*>(args);
+        QL_REQUIRE(arguments != nullptr, "wrong engine type");
 
         arguments->cashFlow = cashFlow_;
     }

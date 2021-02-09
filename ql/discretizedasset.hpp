@@ -144,12 +144,8 @@ namespace QuantLib {
     class DiscretizedDiscountBond : public DiscretizedAsset {
       public:
         DiscretizedDiscountBond() {}
-        void reset(Size size) {
-            values_ = Array(size, 1.0);
-        }
-        std::vector<Time> mandatoryTimes() const {
-            return std::vector<Time>();
-        }
+        void reset(Size size) override { values_ = Array(size, 1.0); }
+        std::vector<Time> mandatoryTimes() const override { return std::vector<Time>(); }
     };
 
 
@@ -166,10 +162,11 @@ namespace QuantLib {
                       const std::vector<Time>& exerciseTimes)
         : underlying_(underlying), exerciseType_(exerciseType),
           exerciseTimes_(exerciseTimes) {}
-        void reset(Size size);
-        std::vector<Time> mandatoryTimes() const;
+        void reset(Size size) override;
+        std::vector<Time> mandatoryTimes() const override;
+
       protected:
-        void postAdjustValuesImpl();
+        void postAdjustValuesImpl() override;
         void applyExerciseCondition();
         ext::shared_ptr<DiscretizedAsset> underlying_;
         Exercise::Type exerciseType_;
@@ -230,9 +227,8 @@ namespace QuantLib {
     inline std::vector<Time> DiscretizedOption::mandatoryTimes() const {
         std::vector<Time> times = underlying_->mandatoryTimes();
         // discard negative times...
-        std::vector<Time>::const_iterator i =
-            std::find_if(exerciseTimes_.begin(),exerciseTimes_.end(),
-                         greater_or_equal_to<Time>(0.0));
+        auto i = std::find_if(exerciseTimes_.begin(), exerciseTimes_.end(),
+                              greater_or_equal_to<Time>(0.0));
         // and add the positive ones
         times.insert(times.end(), i, exerciseTimes_.end());
         return times;

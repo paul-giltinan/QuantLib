@@ -75,9 +75,8 @@ namespace QuantLib {
     }
 
     void LocalVolSurface::accept(AcyclicVisitor& v) {
-        Visitor<LocalVolSurface>* v1 =
-            dynamic_cast<Visitor<LocalVolSurface>*>(&v);
-        if (v1 != 0)
+        auto* v1 = dynamic_cast<Visitor<LocalVolSurface>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             LocalVolTermStructure::accept(v);

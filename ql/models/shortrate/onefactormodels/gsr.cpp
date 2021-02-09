@@ -64,15 +64,14 @@ Gsr::Gsr(const Handle<YieldTermStructure> &termStructure,
     initialize(T);
 }
 
-Gsr::Gsr(const Handle<YieldTermStructure> &termStructure,
-         const std::vector<Date> &volstepdates,
-         const std::vector<Handle<Quote> > &volatilities,
-         const Handle<Quote> reversion, const Real T)
-    : Gaussian1dModel(termStructure), CalibratedModel(2),
-      reversion_(arguments_[0]), sigma_(arguments_[1]),
-      volatilities_(volatilities),
-      reversions_(std::vector<Handle<Quote> >(1, reversion)),
-      volstepdates_(volstepdates) {
+Gsr::Gsr(const Handle<YieldTermStructure>& termStructure,
+         const std::vector<Date>& volstepdates,
+         const std::vector<Handle<Quote> >& volatilities,
+         const Handle<Quote>& reversion,
+         const Real T)
+: Gaussian1dModel(termStructure), CalibratedModel(2), reversion_(arguments_[0]),
+  sigma_(arguments_[1]), volatilities_(volatilities),
+  reversions_(std::vector<Handle<Quote> >(1, reversion)), volstepdates_(volstepdates) {
 
     QL_REQUIRE(!termStructure.empty(), "yield term structure handle is empty");
     initialize(T);
@@ -91,17 +90,16 @@ Gsr::Gsr(const Handle<YieldTermStructure> &termStructure,
     initialize(T);
 }
 
-void Gsr::update() { 
-	if (stateProcess_ != NULL)
+void Gsr::update() {
+    if (stateProcess_ != nullptr)
         ext::static_pointer_cast<GsrProcess>(stateProcess_)->flushCache();
-	LazyObject::update();
+    LazyObject::update();
 }
 
 void Gsr::updateTimes() const {
     volsteptimes_.clear();
     int j = 0;
-    for (std::vector<Date>::const_iterator i = volstepdates_.begin();
-         i != volstepdates_.end(); ++i, ++j) {
+    for (auto i = volstepdates_.begin(); i != volstepdates_.end(); ++i, ++j) {
         volsteptimes_.push_back(termStructure()->timeFromReference(*i));
         volsteptimesArray_[j] = volsteptimes_[j];
         if (j == 0)
@@ -113,7 +111,7 @@ void Gsr::updateTimes() const {
                            << volsteptimes_[j - 1] << "@" << (j - 1) << ", "
                            << volsteptimes_[j] << "@" << j << ")");
     }
-    if (stateProcess_ != NULL)
+    if (stateProcess_ != nullptr)
         ext::static_pointer_cast<GsrProcess>(stateProcess_)->flushCache();
 }
 

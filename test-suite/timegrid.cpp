@@ -150,7 +150,7 @@ void TimeGridTest::testMandatoryTimes()
     const TimeGrid tg(test_times.begin(), test_times.end(), 8);
     
     // Mandatory times are those provided by the original iterator.
-    const std::vector<Time> tg_mandatory_times = tg.mandatoryTimes();
+    const std::vector<Time>& tg_mandatory_times = tg.mandatoryTimes();
     BOOST_CHECK_EQUAL_COLLECTIONS(
         tg_mandatory_times.begin(), tg_mandatory_times.end(),
         test_times.begin(), test_times.end());
@@ -158,8 +158,8 @@ void TimeGridTest::testMandatoryTimes()
 
 test_suite* TimeGridTest::suite()
 {
-    test_suite* suite = BOOST_TEST_SUITE("Timegrid tests");
-    
+    auto* suite = BOOST_TEST_SUITE("Timegrid tests");
+
     suite->add(QUANTLIB_TEST_CASE(&TimeGridTest::testConstructorAdditionalSteps));
     suite->add(QUANTLIB_TEST_CASE(&TimeGridTest::testConstructorMandatorySteps));
     suite->add(QUANTLIB_TEST_CASE(&TimeGridTest::testConstructorEvenSteps));

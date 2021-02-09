@@ -40,10 +40,10 @@ namespace QuantLib {
             ext::dynamic_pointer_cast<StrikedTypePayoff>(arguments_.payoff);
         QL_REQUIRE(payoff, "non-striked payoff given");
 
-        ResultMap::const_iterator r1 = resultMap_.find(arguments_.exercise->lastDate());
+        auto r1 = resultMap_.find(arguments_.exercise->lastDate());
         if (r1 != resultMap_.end())
         {
-            PayoffResultMap::const_iterator r2 = r1->second.find(payoff);
+            auto r2 = r1->second.find(payoff);
             if (r2 != r1->second.end())
             {
                 results_.value = r2->second;
@@ -64,9 +64,8 @@ namespace QuantLib {
         VanillaOption::engine::update();
     }
 
-    void FFTEngine::calculateUncached(ext::shared_ptr<StrikedTypePayoff> payoff,
-        ext::shared_ptr<Exercise> exercise) const
-    {
+    void FFTEngine::calculateUncached(const ext::shared_ptr<StrikedTypePayoff>& payoff,
+                                      const ext::shared_ptr<Exercise>& exercise) const {
         ext::shared_ptr<VanillaOption> option(new VanillaOption(payoff, exercise));
         std::vector<ext::shared_ptr<Instrument> > optionList;
         optionList.push_back(option);
@@ -85,10 +84,8 @@ namespace QuantLib {
         typedef std::vector<ext::shared_ptr<StrikedTypePayoff> > PayoffList;
         typedef std::map<Date, PayoffList> PayoffMap;
         PayoffMap payoffMap;
-        
-        for (std::vector<ext::shared_ptr<Instrument> >::const_iterator optIt = optionList.begin();
-            optIt != optionList.end(); ++optIt)
-        {
+
+        for (auto optIt = optionList.begin(); optIt != optionList.end(); ++optIt) {
             ext::shared_ptr<VanillaOption> option = ext::dynamic_pointer_cast<VanillaOption>(*optIt);
             QL_REQUIRE(option, "instrument must be option");
             QL_REQUIRE(option->exercise()->type() == Exercise::European,
@@ -110,9 +107,7 @@ namespace QuantLib {
 
             // Calculate n large enough for maximum strike, and round up to a power of 2
             Real maxStrike = 0.0;
-            for (PayoffList::const_iterator it = payIt->second.begin();
-                it != payIt->second.end(); ++it)
-            {
+            for (auto it = payIt->second.begin(); it != payIt->second.end(); ++it) {
                 ext::shared_ptr<StrikedTypePayoff> payoff = *it;
 
                 if (payoff->strike() > maxStrike)
@@ -166,9 +161,7 @@ namespace QuantLib {
                 strikes[i] = std::exp(k_u);
             }
 
-            for (PayoffList::const_iterator it = payIt->second.begin();
-                it != payIt->second.end(); ++it)
-            {
+            for (auto it = payIt->second.begin(); it != payIt->second.end(); ++it) {
                 ext::shared_ptr<StrikedTypePayoff> payoff = *it;
 
                 Real callPrice = LinearInterpolation(strikes.begin(), strikes.end(), prices.begin())(payoff->strike());

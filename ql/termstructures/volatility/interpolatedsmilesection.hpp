@@ -39,52 +39,49 @@ namespace QuantLib {
     class InterpolatedSmileSection : public SmileSection,
                                      public LazyObject {
       public:
-        InterpolatedSmileSection(
-                           Time expiryTime,
-                           const std::vector<Rate>& strikes,
-                           const std::vector<Handle<Quote> >& stdDevHandles,
-                           const Handle<Quote>& atmLevel,
-                           const Interpolator& interpolator = Interpolator(),
-                           const DayCounter& dc = Actual365Fixed(),
-                           const VolatilityType type = ShiftedLognormal,
-                           const Real shift = 0.0);
-        InterpolatedSmileSection(
-                           Time expiryTime,
-                           const std::vector<Rate>& strikes,
-                           const std::vector<Real>& stdDevs,
-                           Real atmLevel,
-                           const Interpolator& interpolator = Interpolator(),
-                           const DayCounter& dc = Actual365Fixed(),
-                           const VolatilityType type = ShiftedLognormal,
-                           const Real shift = 0.0);
-        InterpolatedSmileSection(
-                           const Date& d,
-                           const std::vector<Rate>& strikes,
-                           const std::vector<Handle<Quote> >& stdDevHandles,
-                           const Handle<Quote>& atmLevel,
-                           const DayCounter& dc = Actual365Fixed(),
-                           const Interpolator& interpolator = Interpolator(),
-                           const Date& referenceDate = Date(),
-                           const VolatilityType type = ShiftedLognormal,
-                           const Real shift = 0.0);
-        InterpolatedSmileSection(
-                           const Date& d,
-                           const std::vector<Rate>& strikes,
-                           const std::vector<Real>& stdDevs,
-                           Real atmLevel,
-                           const DayCounter& dc = Actual365Fixed(),
-                           const Interpolator& interpolator = Interpolator(),
-                           const Date& referenceDate = Date(),
-                           const VolatilityType type = ShiftedLognormal,
-                           const Real shift = 0.0);
+        InterpolatedSmileSection(Time expiryTime,
+                                 const std::vector<Rate>& strikes,
+                                 const std::vector<Handle<Quote> >& stdDevHandles,
+                                 const Handle<Quote>& atmLevel,
+                                 const Interpolator& interpolator = Interpolator(),
+                                 const DayCounter& dc = Actual365Fixed(),
+                                 VolatilityType type = ShiftedLognormal,
+                                 Real shift = 0.0);
+        InterpolatedSmileSection(Time expiryTime,
+                                 const std::vector<Rate>& strikes,
+                                 const std::vector<Real>& stdDevs,
+                                 Real atmLevel,
+                                 const Interpolator& interpolator = Interpolator(),
+                                 const DayCounter& dc = Actual365Fixed(),
+                                 VolatilityType type = ShiftedLognormal,
+                                 Real shift = 0.0);
+        InterpolatedSmileSection(const Date& d,
+                                 const std::vector<Rate>& strikes,
+                                 const std::vector<Handle<Quote> >& stdDevHandles,
+                                 const Handle<Quote>& atmLevel,
+                                 const DayCounter& dc = Actual365Fixed(),
+                                 const Interpolator& interpolator = Interpolator(),
+                                 const Date& referenceDate = Date(),
+                                 VolatilityType type = ShiftedLognormal,
+                                 Real shift = 0.0);
+        InterpolatedSmileSection(const Date& d,
+                                 const std::vector<Rate>& strikes,
+                                 const std::vector<Real>& stdDevs,
+                                 Real atmLevel,
+                                 const DayCounter& dc = Actual365Fixed(),
+                                 const Interpolator& interpolator = Interpolator(),
+                                 const Date& referenceDate = Date(),
+                                 VolatilityType type = ShiftedLognormal,
+                                 Real shift = 0.0);
 
-        void performCalculations() const;
-        Real varianceImpl(Rate strike) const;
-        Volatility volatilityImpl(Rate strike) const;
-        Real minStrike () const { return strikes_.front(); }
-        Real maxStrike () const { return strikes_.back(); }
-        virtual Real atmLevel() const { return atmLevel_->value(); }
-        void update();
+        void performCalculations() const override;
+        Real varianceImpl(Rate strike) const override;
+        Volatility volatilityImpl(Rate strike) const override;
+        Real minStrike() const override { return strikes_.front(); }
+        Real maxStrike() const override { return strikes_.back(); }
+        Real atmLevel() const override { return atmLevel_->value(); }
+        void update() override;
+
       private:
         Real exerciseTimeSquareRoot_;
         std::vector<Rate> strikes_;

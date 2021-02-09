@@ -51,13 +51,11 @@ namespace QuantLib {
     }
 
     void FdmTimeDepDirichletBoundary::setTime(Time t) {
-        if (valueOnBoundary_) {
+        if (!(valueOnBoundary_ == QL_NULL_FUNCTION)) {
             std::fill(values_.begin(), values_.end(), valueOnBoundary_(t));
-        }
-        else if (valuesOnBoundary_) {
+        } else if (!(valuesOnBoundary_ == QL_NULL_FUNCTION)) {
             values_ = valuesOnBoundary_(t);
-        }
-        else {
+        } else {
             QL_FAIL("no boundary values defined");
         }
     }
@@ -67,8 +65,7 @@ namespace QuantLib {
                    "values on boundary size (" << values_.size()
                    << ") does not match hypersurface size ("
                    << indices_.size() << ")");
-        for (std::vector<Size>::const_iterator iter = indices_.begin();
-             iter != indices_.end(); ++iter) {
+        for (auto iter = indices_.begin(); iter != indices_.end(); ++iter) {
             a[*iter] = values_[iter - indices_.begin()];
         }
     }

@@ -74,8 +74,8 @@ namespace QuantLib {
             void setPoints(const std::vector<Matrix>& x);
             void setPoint(const Date& optionDate,
                           const Period& swapTenor,
-                          const Time optionTime,
-                          const Time swapLengths,
+                          Time optionTime,
+                          Time swapLengths,
                           const std::vector<Real>& point);
             void setLayer(Size i,
                           const Matrix& x);
@@ -92,8 +92,7 @@ namespace QuantLib {
             const std::vector<Time>& optionTimes() const;
             const std::vector<Time>& swapLengths() const;
             const std::vector<Matrix>& points() const;
-            std::vector<Real> operator()(const Time optionTime,
-                                         const Time swapLengths) const;
+            std::vector<Real> operator()(Time optionTime, Time swapLengths) const;
             void updateInterpolators()const;
             Matrix browse() const;
           private:
@@ -120,25 +119,23 @@ namespace QuantLib {
             const std::vector<std::vector<Handle<Quote> > >& parametersGuess,
             const std::vector<bool>& isParameterFixed,
             bool isAtmCalibrated,
-            const ext::shared_ptr<EndCriteria>& endCriteria
-                = ext::shared_ptr<EndCriteria>(),
+            const ext::shared_ptr<EndCriteria>& endCriteria = ext::shared_ptr<EndCriteria>(),
             Real maxErrorTolerance = Null<Real>(),
-            const ext::shared_ptr<OptimizationMethod>& optMethod
-                = ext::shared_ptr<OptimizationMethod>(),
-            const Real errorAccept = Null<Real>(),
-            const bool useMaxError = false,
-            const Size maxGuesses = 50,
-            const bool backwardFlat = false,
-            const Real cutoffStrike = 0.0001);
+            const ext::shared_ptr<OptimizationMethod>& optMethod =
+                ext::shared_ptr<OptimizationMethod>(),
+            Real errorAccept = Null<Real>(),
+            bool useMaxError = false,
+            Size maxGuesses = 50,
+            bool backwardFlat = false,
+            Real cutoffStrike = 0.0001);
         //! \name LazyObject interface
         //@{
-        void performCalculations() const;
+        void performCalculations() const override;
         //@}
         //! \name SwaptionVolatilityCube interface
         //@{
-        ext::shared_ptr<SmileSection> smileSectionImpl(
-                                              Time optionTime,
-                                              Time swapLength) const;
+        ext::shared_ptr<SmileSection> smileSectionImpl(Time optionTime,
+                                                       Time swapLength) const override;
         //@}
         //! \name Other inspectors
         //@{
@@ -174,7 +171,7 @@ namespace QuantLib {
         std::vector<Real> spreadVolInterpolation(const Date& atmOptionDate,
                                                  const Period& atmSwapTenor) const;
       private:
-        Size requiredNumberOfStrikes() const { return 1; }
+        Size requiredNumberOfStrikes() const override { return 1; }
         mutable Cube marketVolCube_;
         mutable Cube volCubeAtmCalibrated_;
         mutable Cube sparseParameters_;
@@ -198,10 +195,11 @@ namespace QuantLib {
           public:
             explicit PrivateObserver(SwaptionVolCube1x<Model> *v)
                 : v_(v) {}
-            void update() {
+            void update() override {
                 v_->setParameterGuess();
                 v_->update();
             }
+
           private:
             SwaptionVolCube1x<Model> *v_;
         };
@@ -560,8 +558,7 @@ namespace QuantLib {
         atmOptionTimes.insert(atmOptionTimes.end(),
                               optionTimes.begin(), optionTimes.end());
         std::sort(atmOptionTimes.begin(),atmOptionTimes.end());
-        std::vector<Time>::iterator new_end =
-            std::unique(atmOptionTimes.begin(), atmOptionTimes.end());
+        auto new_end = std::unique(atmOptionTimes.begin(), atmOptionTimes.end());
         atmOptionTimes.erase(new_end, atmOptionTimes.end());
 
         std::vector<Time> atmSwapLengths(atmVolStructure->swapLengths());
@@ -577,8 +574,7 @@ namespace QuantLib {
         atmOptionDates.insert(atmOptionDates.end(),
                                 optionDates.begin(), optionDates.end());
         std::sort(atmOptionDates.begin(),atmOptionDates.end());
-        std::vector<Date>::iterator new_end_1 =
-            std::unique(atmOptionDates.begin(), atmOptionDates.end());
+        auto new_end_1 = std::unique(atmOptionDates.begin(), atmOptionDates.end());
         atmOptionDates.erase(new_end_1, atmOptionDates.end());
 
         std::vector<Period> atmSwapTenors = atmVolStructure->swapTenors();
@@ -586,8 +582,7 @@ namespace QuantLib {
         atmSwapTenors.insert(atmSwapTenors.end(),
                              swapTenors.begin(), swapTenors.end());
         std::sort(atmSwapTenors.begin(),atmSwapTenors.end());
-        std::vector<Period>::iterator new_end_2 =
-            std::unique(atmSwapTenors.begin(), atmSwapTenors.end());
+        auto new_end_2 = std::unique(atmSwapTenors.begin(), atmSwapTenors.end());
         atmSwapTenors.erase(new_end_2, atmSwapTenors.end());
 
         createSparseSmiles();
@@ -857,7 +852,7 @@ namespace QuantLib {
         QL_REQUIRE(beta.size() == swapLengths.size(),
                    "beta size ("
                        << beta.size()
-                       << ") must be equal to number of swap lenghts ("
+                       << ") must be equal to number of swap lengths ("
                        << swapLengths.size() << ")");
 
         std::vector<Time> betaTimes;
@@ -932,15 +927,11 @@ namespace QuantLib {
         setPoints(points);
      }
 
-    template<class Model> SwaptionVolCube1x<Model>::Cube::Cube(const Cube& o) {
-        optionTimes_ = o.optionTimes_;
-        swapLengths_ = o.swapLengths_;
-        optionDates_ = o.optionDates_;
-        swapTenors_ = o.swapTenors_;
-        nLayers_ = o.nLayers_;
-        extrapolation_ = o.extrapolation_;
-        backwardFlat_ = o.backwardFlat_;
-        transposedPoints_ = o.transposedPoints_;
+    template<class Model> SwaptionVolCube1x<Model>::Cube::Cube(const Cube& o)
+    : optionTimes_(o.optionTimes_), swapLengths_(o.swapLengths_),
+      optionDates_(o.optionDates_), swapTenors_(o.swapTenors_),
+      nLayers_(o.nLayers_), transposedPoints_(o.transposedPoints_),
+      extrapolation_(o.extrapolation_), backwardFlat_(o.backwardFlat_) {
         for (Size k=0; k<nLayers_; ++k) {
             ext::shared_ptr<Interpolation2D> interpolation;
             if (k <= 4 && backwardFlat_)

@@ -102,9 +102,8 @@ namespace {
           exerciseTimes_(exerciseTimes), mesher_(mesher) {
         }
 
-        void applyTo(Array& a, Time t) const {
-            std::vector<Time>::const_iterator iter
-                = std::find(exerciseTimes_.begin(), exerciseTimes_.end(), t);
+        void applyTo(Array& a, Time t) const override {
+            auto iter = std::find(exerciseTimes_.begin(), exerciseTimes_.end(), t);
 
             if (iter != exerciseTimes_.end()) {
                 Size index = std::distance(exerciseTimes_.begin(), iter);
@@ -131,10 +130,10 @@ namespace {
 
     class ExpressPayoff : public Payoff {
       public:
-        std::string name() const { return "ExpressPayoff";}
-        std::string description() const { return "ExpressPayoff";}
+        std::string name() const override { return "ExpressPayoff"; }
+        std::string description() const override { return "ExpressPayoff"; }
 
-        Real operator()(Real s) const {
+        Real operator()(Real s) const override {
             return  ((s >= 100.0) ? 108.0 : 100.0)
                   - ((s <= 75.0) ? 100.0 - s : 0.0);
         }
@@ -1401,7 +1400,7 @@ void FdmLinearOpTest::testCrankNicolsonWithDamping() {
                              new CashOrNothingPayoff(Option::Put, 100, 10.0));
 
     Time maturity = 0.75;
-    Date exDate = today + Integer(maturity*360+0.5);
+    Date exDate = today + timeToDays(maturity);
     ext::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
     ext::shared_ptr<BlackScholesMertonProcess> process(new
@@ -1483,7 +1482,7 @@ void FdmLinearOpTest::testSpareMatrixReference() {
     const Size nMatrices = 5;
     const Size nElements = 50;
 
-    PseudoRandom::urng_type rng(1234ul);
+    PseudoRandom::urng_type rng(1234UL);
 
     SparseMatrix expected(rows, columns);
     std::vector<SparseMatrix> v(nMatrices, SparseMatrix(rows, columns));
@@ -1537,7 +1536,7 @@ void FdmLinearOpTest::testSparseMatrixZeroAssignment() {
     BOOST_TEST_MESSAGE("Testing assignment to zero in sparse matrix...");
 
     SparseMatrix m(5,5);
-    if (nrElementsOfSparseMatrix(m)) {
+    if (nrElementsOfSparseMatrix(m) != 0U) {
         BOOST_FAIL("non zero return for an emtpy matrix");
     }
     m(0, 0) = 0.0; m(1, 2) = 0.0;
@@ -1753,7 +1752,7 @@ void FdmLinearOpTest::testLowVolatilityHighDiscreteDividendBlackScholesMesher() 
 }
 
 test_suite* FdmLinearOpTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("linear operator tests");
+    auto* suite = BOOST_TEST_SUITE("linear operator tests");
 
     suite->add(
         QUANTLIB_TEST_CASE(&FdmLinearOpTest::testFdmLinearOpLayout));

@@ -133,22 +133,22 @@ namespace QuantLib {
              Size nBuckets,
              const Period& integrationStep = Period(10, Years));
 
-        Real nominal() { return nominal_; }
-        Real lgd() { return lgd_; }
-        Real attachment () { return attachment_; }
-        Real detachment () { return detachment_; }
+        Real nominal() const { return nominal_; }
+        Real lgd() const { return lgd_; }
+        Real attachment() const { return attachment_; }
+        Real detachment() const { return detachment_; }
         std::vector<Real> nominals() { return nominals_; }
         Size size() { return basket_.size(); }
 
-        bool isExpired () const;
+        bool isExpired() const override;
         Rate fairPremium() const;
         Rate premiumValue () const;
         Rate protectionValue () const;
         Size error () const;
 
       private:
-        void setupExpired() const;
-        void performCalculations() const;
+        void setupExpired() const override;
+        void performCalculations() const override;
         Real expectedTrancheLoss (Date d) const;
 
         Real attachment_;

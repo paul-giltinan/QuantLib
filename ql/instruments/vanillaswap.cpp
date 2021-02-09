@@ -47,7 +47,7 @@ namespace QuantLib {
       floatingSchedule_(floatSchedule), iborIndex_(iborIndex), spread_(spread),
       floatingDayCount_(floatingDayCount) {
 
-        if (paymentConvention)
+        if (paymentConvention) // NOLINT(readability-implicit-bool-conversion)
             paymentConvention_ = *paymentConvention;
         else
             paymentConvention_ = floatingSchedule_.businessDayConvention();
@@ -83,10 +83,9 @@ namespace QuantLib {
 
         Swap::setupArguments(args);
 
-        VanillaSwap::arguments* arguments =
-            dynamic_cast<VanillaSwap::arguments*>(args);
+        auto* arguments = dynamic_cast<VanillaSwap::arguments*>(args);
 
-        if (!arguments)  // it's a swap engine...
+        if (arguments == nullptr) // it's a swap engine...
             return;
 
         arguments->type = type_;
@@ -183,9 +182,8 @@ namespace QuantLib {
 
         Swap::fetchResults(r);
 
-        const VanillaSwap::results* results =
-            dynamic_cast<const VanillaSwap::results*>(r);
-        if (results) { // might be a swap engine, so no error is thrown
+        const auto* results = dynamic_cast<const VanillaSwap::results*>(r);
+        if (results != nullptr) { // might be a swap engine, so no error is thrown
             fairRate_ = results->fairRate;
             fairSpread_ = results->fairSpread;
         } else {

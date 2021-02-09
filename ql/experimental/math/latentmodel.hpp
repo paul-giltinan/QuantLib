@@ -96,7 +96,7 @@ namespace QuantLib {
      // this class template always to be fully specialized:
      private:
          IntegrationBase() {}
-     virtual ~IntegrationBase() {} 
+         ~IntegrationBase() override {}
     };
     //@}
     
@@ -122,17 +122,15 @@ namespace QuantLib {
     public:
         IntegrationBase(Size dimension, Size order) 
         : GaussianQuadMultidimIntegrator(dimension, order) {}
-        Real integrate(const ext::function<Real (
-            const std::vector<Real>& arg)>& f) const {
-                return GaussianQuadMultidimIntegrator::integrate<Real>(f);
+        Real integrate(const ext::function<Real(const std::vector<Real>& arg)>& f) const override {
+            return GaussianQuadMultidimIntegrator::integrate<Real>(f);
         }
         Disposable<std::vector<Real> > integrateV(
-            const ext::function<Disposable<std::vector<Real> >  (
-                const std::vector<Real>& arg)>& f) const {
-                return GaussianQuadMultidimIntegrator::
-                    integrate<Disposable<std::vector<Real> > >(f);
+            const ext::function<Disposable<std::vector<Real> >(const std::vector<Real>& arg)>& f)
+            const override {
+            return GaussianQuadMultidimIntegrator::integrate<Disposable<std::vector<Real> > >(f);
         }
-        virtual ~IntegrationBase() {}
+        ~IntegrationBase() override {}
     };
 
     #endif
@@ -145,12 +143,11 @@ namespace QuantLib {
             Real a, Real b) 
         : MultidimIntegral(integrators), 
           a_(integrators.size(),a), b_(integrators.size(),b) {}
-        Real integrate(const ext::function<Real (
-            const std::vector<Real>& arg)>& f) const {
-                return MultidimIntegral::operator ()(f, a_, b_);
+        Real integrate(const ext::function<Real(const std::vector<Real>& arg)>& f) const override {
+            return MultidimIntegral::operator()(f, a_, b_);
         }
         // disposable vector version here....
-        virtual ~IntegrationBase() {}
+        ~IntegrationBase() override {}
         const std::vector<Real> a_, b_;
     };
 
@@ -288,15 +285,15 @@ namespace QuantLib {
         : public virtual Observer , public virtual Observable 
     {//observer if factors as quotes
     public:
-        void update();
-        //! \name Copula interface.
-        //@{
-        typedef copulaPolicyImpl copulaType;
-        /*! Cumulative probability of the \f$ Y_i \f$ modelled latent random 
-            variable to take a given value.
-        */
-        Probability cumulativeY(Real val, Size iVariable) const {
-            return copula_.cumulativeY(val, iVariable);
+      void update() override;
+      //! \name Copula interface.
+      //@{
+      typedef copulaPolicyImpl copulaType;
+      /*! Cumulative probability of the \f$ Y_i \f$ modelled latent random
+          variable to take a given value.
+      */
+      Probability cumulativeY(Real val, Size iVariable) const {
+          return copula_.cumulativeY(val, iVariable);
         }
         //! Cumulative distribution of Z, the idiosyncratic/error factors.
         Probability cumulativeZ(Real z) const {
@@ -359,7 +356,7 @@ namespace QuantLib {
             return copula_;
         }
 
-    public:
+
     //  protected:
         //! \name Latent model random factor number generator facility.
         //@{
@@ -548,9 +545,9 @@ namespace QuantLib {
             possibly drop the static policy and create a policy member
             in LatentModel)
         */
-        explicit LatentModel(const Real correlSqr, Size nVariables,
-            const typename copulaType::initTraits& ini = 
-                copulaType::initTraits());
+        explicit LatentModel(Real correlSqr,
+                             Size nVariables,
+                             const typename copulaType::initTraits& ini = copulaType::initTraits());
         /*! Constructs a LM with an arbitrary number of latent variables 
           depending only on one random factor with the same weight for all
           latent variables. The weight is observed and this constructor is
@@ -591,14 +588,16 @@ namespace QuantLib {
         */
         Real integratedExpectedValue(
             const ext::function<Real(const std::vector<Real>& v1)>& f) const {
-            using namespace ext::placeholders;
+
             // function composition: composes the integrand with the density 
             //   through a product.
             return 
                 integration()->integrate(
                     ext::bind(std::multiplies<Real>(), 
-                    ext::bind(&copulaPolicyImpl::density, copula_, _1),
-                              ext::bind(ext::cref(f), _1)));   
+                    ext::bind(&copulaPolicyImpl::density, copula_,
+                              ext::placeholders::_1),
+                              ext::bind(ext::cref(f),
+                                        ext::placeholders::_1)));   
         }
         /*! Integrates an arbitrary vector function over the density domain(i.e.
          computes its expected value).
@@ -607,13 +606,13 @@ namespace QuantLib {
             // const ext::function<std::vector<Real>(
             const ext::function<Disposable<std::vector<Real> >(
                 const std::vector<Real>& v1)>& f ) const {
-            using namespace ext::placeholders;
             return 
                 integration()->integrateV(//see note in LMIntegrators base class
                     ext::bind<Disposable<std::vector<Real> > >(
                         detail::multiplyV(),
-                        ext::bind(&copulaPolicyImpl::density, copula_, _1),
-                        ext::bind(ext::cref(f), _1)));
+                        ext::bind(&copulaPolicyImpl::density, copula_,
+                                  ext::placeholders::_1),
+                        ext::bind(ext::cref(f), ext::placeholders::_1)));
         }
     protected:
         // Integrable models must provide their integrator.
@@ -623,7 +622,7 @@ namespace QuantLib {
             QL_FAIL("Integration non implemented in Latent model.");
         }
         //@}
-    protected:
+
         // Ordering is: factorWeights_[iVariable][iFactor]
         mutable std::vector<std::vector<Real> > factorWeights_;
         /* This is a duplicated value from the data above chosen for memory 

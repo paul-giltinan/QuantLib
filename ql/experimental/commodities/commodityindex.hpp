@@ -51,7 +51,7 @@ namespace QuantLib {
         //@}
         //! \name Observer interface
         //@{
-        void update();
+        void update() override;
         //@}
         //! \name Inspectors
         //@{
@@ -71,14 +71,13 @@ namespace QuantLib {
         void addQuotes(const std::map<Date, Real>& quotes) {
             std::string tag = name();
             quotes_ = IndexManager::instance().getHistory(tag);
-            for (std::map<Date, Real>::const_iterator ii = quotes.begin();
-                 ii != quotes.end (); ++ii) {
+            for (auto ii = quotes.begin(); ii != quotes.end(); ++ii) {
                 quotes_[ii->first] = ii->second;
             }
             IndexManager::instance().setHistory(tag, quotes_);
         }
 
-        void clearQuotes();
+        void clearQuotes() const;
         //! returns TRUE if the quote date is valid
         bool isValidQuoteDate(const Date& quoteDate) const;
         bool empty() const;
@@ -145,7 +144,7 @@ namespace QuantLib {
     }
 
     inline Real CommodityIndex::price(const Date& date) {
-        std::map<Date, Real>::const_iterator hq = quotes_.find(date);
+        auto hq = quotes_.find(date);
         if (hq->second == Null<Real>()) {
             ++hq;
             if (hq == quotes_.end())
@@ -177,7 +176,7 @@ namespace QuantLib {
     }
 
     inline bool CommodityIndex::forwardCurveEmpty() const {
-        if (forwardCurve_ != 0)
+        if (forwardCurve_ != nullptr)
             return forwardCurve_->empty();
         return false;
     }
@@ -192,7 +191,7 @@ namespace QuantLib {
         IndexManager::instance().setHistory(tag, quotes_);
     }
 
-    inline void CommodityIndex::clearQuotes() {
+    inline void CommodityIndex::clearQuotes() const {
         IndexManager::instance().clearHistory(name());
     }
 

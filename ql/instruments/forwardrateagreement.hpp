@@ -83,29 +83,29 @@ namespace QuantLib {
                              Real notionalAmount,
                              const ext::shared_ptr<IborIndex>& index,
                              const Handle<YieldTermStructure>& discountCurve =
-                                                 Handle<YieldTermStructure>());
+                                                 Handle<YieldTermStructure>(),
+                             bool useIndexedCoupon = true);
         //! \name Calculations
         //@{
         /*! A FRA expires/settles on the valueDate */
-        bool isExpired() const;
+        bool isExpired() const override;
         /*! This returns evaluationDate + settlementDays (not FRA
             valueDate).
         */
-        Date settlementDate() const;
+        Date settlementDate() const override;
         Date fixingDate() const;
         /*!  Income is zero for a FRA */
-        Real spotIncome(const Handle<YieldTermStructure>& incomeDiscountCurve)
-            const;
+        Real spotIncome(const Handle<YieldTermStructure>& incomeDiscountCurve) const override;
         //! Spot value (NPV) of the underlying loan
         /*! This has always a positive value (asset), even if short the FRA */
-        Real spotValue() const;
+        Real spotValue() const override;
         //! Returns the relevant forward rate associated with the FRA term
         InterestRate forwardRate() const;
         //@}
 
       protected:
-        void setupExpired() const;
-        void performCalculations() const;
+        void setupExpired() const override;
+        void performCalculations() const override;
         Position::Type fraType_;
         //! aka FRA rate (the market forward rate)
         mutable InterestRate forwardRate_;
@@ -113,6 +113,10 @@ namespace QuantLib {
         InterestRate strikeForwardRate_;
         Real notionalAmount_;
         ext::shared_ptr<IborIndex> index_;
+        bool useIndexedCoupon_;
+
+      private:
+        void calculateForwardRate() const;
     };
 
 }

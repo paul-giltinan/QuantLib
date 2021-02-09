@@ -49,23 +49,23 @@ namespace QuantLib {
                                      const Handle<Quote>& spread);
         //! \name TermStructure interface
         //@{
-        DayCounter dayCounter() const;
-        Date maxDate() const;
-        Time maxTime() const;
-        const Date& referenceDate() const;
-        Calendar calendar() const;
-        Natural settlementDays() const;
+        DayCounter dayCounter() const override;
+        Date maxDate() const override;
+        Time maxTime() const override;
+        const Date& referenceDate() const override;
+        Calendar calendar() const override;
+        Natural settlementDays() const override;
         //@}
         //! \name Observer interface
         //@{
-        void update();
+        void update() override;
         //@}
       protected:
         //! \name ForwardRateStructure implementation
         //@{
-        Rate forwardImpl(Time t) const;
+        Rate forwardImpl(Time t) const override;
         /* This method must disappear should the spread become a curve */
-        Rate zeroYieldImpl(Time t) const;
+        Rate zeroYieldImpl(Time t) const override;
         //@}
       private:
         Handle<YieldTermStructure> originalCurve_;
@@ -112,6 +112,7 @@ namespace QuantLib {
                asks for our reference date, which we don't have since
                the original curve is still not set. Therefore, we skip
                over that and just call the base-class behavior. */
+            // NOLINTNEXTLINE(bugprone-parent-virtual-call)
             TermStructure::update();
         }
     }

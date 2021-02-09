@@ -29,7 +29,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-namespace {
+namespace partial_time_barrier_option_test {
 
     struct TestCase {
         Real underlying;
@@ -43,6 +43,8 @@ namespace {
 void PartialTimeBarrierOptionTest::testAnalyticEngine() {
     BOOST_TEST_MESSAGE(
         "Testing analytic engine for partial-time barrier option...");
+
+    using namespace partial_time_barrier_option_test;
 
     Date today = Settings::instance().evaluationDate();
 
@@ -125,7 +127,7 @@ void PartialTimeBarrierOptionTest::testAnalyticEngine() {
 
 
 test_suite* PartialTimeBarrierOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Partial-time barrier option tests");
+    auto* suite = BOOST_TEST_SUITE("Partial-time barrier option tests");
 
     suite->add(QUANTLIB_TEST_CASE(
                           &PartialTimeBarrierOptionTest::testAnalyticEngine));

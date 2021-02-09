@@ -35,6 +35,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
+#undef REPORT_FAILURE
 #define REPORT_FAILURE(greekName, payoff, exercise, s, q, r, today, v, \
                        expected, calculated, error, tolerance) \
     BOOST_ERROR(payoff->optionType() << " option:\n" \
@@ -371,7 +372,7 @@ void CliquetOptionTest::testMcPerformance() {
 
 
 test_suite* CliquetOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Cliquet option tests");
+    auto* suite = BOOST_TEST_SUITE("Cliquet option tests");
     suite->add(QUANTLIB_TEST_CASE(&CliquetOptionTest::testValues));
     suite->add(QUANTLIB_TEST_CASE(&CliquetOptionTest::testGreeks));
     suite->add(QUANTLIB_TEST_CASE(&CliquetOptionTest::testPerformanceGreeks));

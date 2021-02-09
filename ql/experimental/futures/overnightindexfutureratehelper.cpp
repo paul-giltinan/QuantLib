@@ -2,6 +2,7 @@
 
 /*
  Copyright (C) 2018 Roy Zywina
+ Copyright (C) 2019, 2020 Eisuke Tani
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -24,13 +25,22 @@ namespace QuantLib {
 
     namespace {
 
-        Date getValidSofrStart(Month month, Year year) {
-            return Date::nthWeekday(3,Wednesday,month,year);
+        Date getValidSofrStart(Month month, Year year, Frequency freq) {
+            return freq == Monthly ? 
+                UnitedStates(UnitedStates::GovernmentBond).adjust(Date(1, month, year)) :
+                Date::nthWeekday(3, Wednesday, month, year);
         }
 
-        Date getValidSofrEnd(Month month, Year year,Frequency freq) {
-            Date d = getValidSofrStart(month,year) + Period(freq);
-            return Date::nthWeekday(3,Wednesday,d.month(),d.year());
+        Date getValidSofrEnd(Month month, Year year, Frequency freq) {
+            if (freq == Monthly) {
+                Calendar dc = UnitedStates(UnitedStates::GovernmentBond);
+                Date d = dc.endOfMonth(Date(1, month, year));
+                return dc.advance(d, 1*Days);
+            } else {
+                Date d = getValidSofrStart(month, year, freq) + Period(freq);
+                return Date::nthWeekday(3, Wednesday, d.month(), d.year());
+            }
+
         }
 
     }
@@ -42,22 +52,22 @@ namespace QuantLib {
         // delivery date
         const Date& maturityDate,
         const ext::shared_ptr<OvernightIndex>& overnightIndex,
-        const Handle<Quote>& convexityAdjustment)
-      :RateHelper(price)
-    {
+        const Handle<Quote>& convexityAdjustment,
+        const OvernightIndexFuture::NettingType subPeriodsNettingType)
+    : RateHelper(price) {
         ext::shared_ptr<Payoff> payoff;
-        future_ = ext::make_shared<OvernightIndexFuture>(overnightIndex,
-            payoff, valueDate, maturityDate, termStructureHandle_,
-            convexityAdjustment);
+        future_ = ext::make_shared<OvernightIndexFuture>(
+            overnightIndex, payoff, valueDate, maturityDate, termStructureHandle_,
+            convexityAdjustment, subPeriodsNettingType);
         earliestDate_ = valueDate;
         latestDate_ = maturityDate;
     }
 
-    Real OvernightIndexFutureRateHelper::impliedQuote() const{
+    Real OvernightIndexFutureRateHelper::impliedQuote() const {
         return future_->spotValue();
     }
 
-    void OvernightIndexFutureRateHelper::setTermStructure(YieldTermStructure *t){
+    void OvernightIndexFutureRateHelper::setTermStructure(YieldTermStructure* t) {
         // do not set the relinkable handle as an observer -
         // force recalculation when needed
         bool observer = false;
@@ -68,10 +78,9 @@ namespace QuantLib {
         RateHelper::setTermStructure(t);
     }
 
-    void OvernightIndexFutureRateHelper::accept(AcyclicVisitor &v){
-        Visitor<OvernightIndexFutureRateHelper>* v1 =
-            dynamic_cast<Visitor<OvernightIndexFutureRateHelper>*>(&v);
-        if (v1 != 0)
+    void OvernightIndexFutureRateHelper::accept(AcyclicVisitor& v) {
+        auto* v1 = dynamic_cast<Visitor<OvernightIndexFutureRateHelper>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             RateHelper::accept(v);
@@ -87,18 +96,20 @@ namespace QuantLib {
         Year referenceYear,
         Frequency referenceFreq,
         const ext::shared_ptr<OvernightIndex>& overnightIndex,
-        const Handle<Quote>& convexityAdjustment)
-      :OvernightIndexFutureRateHelper(price,
-        getValidSofrStart(referenceMonth,referenceYear),
-        getValidSofrEnd(referenceMonth,referenceYear,referenceFreq),
-        overnightIndex,convexityAdjustment)
-    {
-        QL_REQUIRE(referenceFreq==Quarterly || referenceFreq==Monthly,
-            "only monthly and quarterly SOFR futures accepted");
-        if (referenceFreq==Quarterly) {
-            QL_REQUIRE(referenceMonth==Mar || referenceMonth==Jun ||
-                referenceMonth==Sep || referenceMonth==Dec,
-                "quarterly SOFR futures can only start in Mar,Jun,Sep,Dec");
+        const Handle<Quote>& convexityAdjustment,
+        const OvernightIndexFuture::NettingType subPeriodsNettingType)
+    : OvernightIndexFutureRateHelper(price,
+                                     getValidSofrStart(referenceMonth, referenceYear, referenceFreq),
+                                     getValidSofrEnd(referenceMonth, referenceYear, referenceFreq),
+                                     overnightIndex,
+                                     convexityAdjustment,
+                                     subPeriodsNettingType) {
+        QL_REQUIRE(referenceFreq == Quarterly || referenceFreq == Monthly,
+                   "only monthly and quarterly SOFR futures accepted");
+        if (referenceFreq == Quarterly) {
+            QL_REQUIRE(referenceMonth == Mar || referenceMonth == Jun || referenceMonth == Sep ||
+                           referenceMonth == Dec,
+                       "quarterly SOFR futures can only start in Mar,Jun,Sep,Dec");
         }
     }
 
@@ -108,20 +119,21 @@ namespace QuantLib {
         Year referenceYear,
         Frequency referenceFreq,
         const ext::shared_ptr<OvernightIndex>& overnightIndex,
-        Real convexityAdjustment)
-      :OvernightIndexFutureRateHelper(
-        Handle<Quote>(ext::make_shared<SimpleQuote>(price)),
-        getValidSofrStart(referenceMonth,referenceYear),
-        getValidSofrEnd(referenceMonth,referenceYear,referenceFreq),
-        overnightIndex,
-        Handle<Quote>(ext::make_shared<SimpleQuote>(convexityAdjustment)))
-    {
-        QL_REQUIRE(referenceFreq==Quarterly || referenceFreq==Monthly,
-            "only monthly and quarterly SOFR futures accepted");
-        if (referenceFreq==Quarterly) {
-            QL_REQUIRE(referenceMonth==Mar || referenceMonth==Jun ||
-                referenceMonth==Sep || referenceMonth==Dec,
-                "quarterly SOFR futures can only start in Mar,Jun,Sep,Dec");
+        Real convexityAdjustment,
+        const OvernightIndexFuture::NettingType subPeriodsNettingType)
+    : OvernightIndexFutureRateHelper(
+          Handle<Quote>(ext::make_shared<SimpleQuote>(price)),
+          getValidSofrStart(referenceMonth, referenceYear, referenceFreq),
+          getValidSofrEnd(referenceMonth, referenceYear, referenceFreq),
+          overnightIndex,
+          Handle<Quote>(ext::make_shared<SimpleQuote>(convexityAdjustment)),
+          subPeriodsNettingType) {
+        QL_REQUIRE(referenceFreq == Quarterly || referenceFreq == Monthly,
+                   "only monthly and quarterly SOFR futures accepted");
+        if (referenceFreq == Quarterly) {
+            QL_REQUIRE(referenceMonth == Mar || referenceMonth == Jun || referenceMonth == Sep ||
+                           referenceMonth == Dec,
+                       "quarterly SOFR futures can only start in Mar,Jun,Sep,Dec");
         }
     }
 

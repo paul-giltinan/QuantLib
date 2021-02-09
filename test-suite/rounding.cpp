@@ -25,7 +25,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-namespace {
+namespace rounding_test {
 
     struct TestCase {
         Decimal x;
@@ -68,6 +68,8 @@ void RoundingTest::testClosest() {
 
     BOOST_TEST_MESSAGE("Testing closest decimal rounding...");
 
+    using namespace rounding_test;
+
     for (Size i=0; i<LENGTH(testData); i++) {
         Integer digits = testData[i].precision;
         ClosestRounding closest(digits);
@@ -85,6 +87,8 @@ void RoundingTest::testClosest() {
 void RoundingTest::testUp() {
 
     BOOST_TEST_MESSAGE("Testing upward decimal rounding...");
+
+    using namespace rounding_test;
 
     for (Size i=0; i<LENGTH(testData); i++) {
         Integer digits = testData[i].precision;
@@ -104,6 +108,8 @@ void RoundingTest::testDown() {
 
     BOOST_TEST_MESSAGE("Testing downward decimal rounding...");
 
+    using namespace rounding_test;
+
     for (Size i=0; i<LENGTH(testData); i++) {
         Integer digits = testData[i].precision;
         DownRounding down(digits);
@@ -121,6 +127,8 @@ void RoundingTest::testDown() {
 void RoundingTest::testFloor() {
 
     BOOST_TEST_MESSAGE("Testing floor decimal rounding...");
+
+    using namespace rounding_test;
 
     for (Size i=0; i<LENGTH(testData); i++) {
         Integer digits = testData[i].precision;
@@ -140,6 +148,8 @@ void RoundingTest::testCeiling() {
 
     BOOST_TEST_MESSAGE("Testing ceiling decimal rounding...");
 
+    using namespace rounding_test;
+
     for (Size i=0; i<LENGTH(testData); i++) {
         Integer digits = testData[i].precision;
         CeilingTruncation ceiling(digits);
@@ -156,7 +166,7 @@ void RoundingTest::testCeiling() {
 
 
 test_suite* RoundingTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Rounding tests");
+    auto* suite = BOOST_TEST_SUITE("Rounding tests");
     suite->add(QUANTLIB_TEST_CASE(&RoundingTest::testClosest));
     suite->add(QUANTLIB_TEST_CASE(&RoundingTest::testUp));
     suite->add(QUANTLIB_TEST_CASE(&RoundingTest::testDown));

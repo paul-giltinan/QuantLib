@@ -51,7 +51,7 @@ namespace {
 
 void FdCevTest::testLocalMartingale() {
     BOOST_TEST_MESSAGE(
-        "Testing local martingale property of CEV process with PDF ...");
+        "Testing local martingale property of CEV process with PDF...");
 
     const Time t = 1.0;
 
@@ -214,7 +214,7 @@ void FdCevTest::testFdmCevOp() {
 
 
 test_suite* FdCevTest::suite(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("Finite Difference CEV tests");
+    auto* suite = BOOST_TEST_SUITE("Finite Difference CEV tests");
 
 
     suite->add(QUANTLIB_TEST_CASE(&FdCevTest::testLocalMartingale));

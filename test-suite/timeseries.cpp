@@ -47,7 +47,7 @@ void TimeSeriesTest::testConstruction() {
     ts[Date(29, March, 2005)] = 2.3;
     ts[Date(15, March, 2005)] = 0.3;
 
-    TimeSeries<Real>::const_iterator cur = ts.begin();
+    auto cur = ts.begin();
     if (cur->first != Date(15, March, 2005)) {
         BOOST_ERROR("date does not match");
     }
@@ -93,17 +93,6 @@ void TimeSeriesTest::testIntervalPrice() {
                                                                close,
                                                                high,
                                                                low);
-}
-
-namespace boost {
-
-    template<>
-    struct hash<Date> {
-        size_t operator()(const Date& _Keyval) const {
-            return boost::hash<Date::serial_type>()(_Keyval.serialNumber());
-        }
-    };
-
 }
 
 void TimeSeriesTest::testIterators() {
@@ -194,7 +183,7 @@ void TimeSeriesTest::testIterators() {
 }
 
 test_suite* TimeSeriesTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("time series tests");
+    auto* suite = BOOST_TEST_SUITE("time series tests");
     suite->add(QUANTLIB_TEST_CASE(&TimeSeriesTest::testConstruction));
     suite->add(QUANTLIB_TEST_CASE(&TimeSeriesTest::testIntervalPrice));
     suite->add(QUANTLIB_TEST_CASE(&TimeSeriesTest::testIterators));

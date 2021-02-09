@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
  Copyright (C) 2015 Klaus Spanderen
 
  This file is part of QuantLib, a free-software/open-source library
@@ -67,10 +67,10 @@ namespace QuantLib {
             Extrapolation upperExtrapolation = ConstantExtrapolation);
 
 
-        Date maxDate() const;
-        Time maxTime() const;
-        Real minStrike() const;
-        Real maxStrike() const;
+        Date maxDate() const override;
+        Time maxTime() const override;
+        Real minStrike() const override;
+        Real maxStrike() const override;
 
         template <class Interpolator>
         void setInterpolation(const Interpolator& i = Interpolator()) {
@@ -83,7 +83,7 @@ namespace QuantLib {
         }
 
       protected:
-        Volatility localVolImpl(Time t, Real strike) const;
+        Volatility localVolImpl(Time t, Real strike) const override;
 
         const Date maxDate_;
         std::vector<Time> times_;

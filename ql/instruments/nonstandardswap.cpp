@@ -73,7 +73,7 @@ namespace QuantLib {
           intermediateCapitalExchange_(intermediateCapitalExchange),
           finalCapitalExchange_(finalCapitalExchange) {
 
-        if (paymentConvention)
+        if (paymentConvention) // NOLINT(readability-implicit-bool-conversion)
             paymentConvention_ = *paymentConvention;
         else
             paymentConvention_ = floatingSchedule_.businessDayConvention();
@@ -99,7 +99,7 @@ namespace QuantLib {
           intermediateCapitalExchange_(intermediateCapitalExchange),
           finalCapitalExchange_(finalCapitalExchange) {
 
-        if (paymentConvention)
+        if (paymentConvention) // NOLINT(readability-implicit-bool-conversion)
             paymentConvention_ = *paymentConvention;
         else
             paymentConvention_ = floatingSchedule_.businessDayConvention();
@@ -160,16 +160,15 @@ namespace QuantLib {
             for (Size i = 0; i < legs_[0].size() - 1; i++) {
                 Real cap = fixedNominal_[i] - fixedNominal_[i + 1];
                 if (!close(cap, 0.0)) {
-                    std::vector<ext::shared_ptr<CashFlow> >::iterator it1 =
-                        legs_[0].begin();
+                    auto it1 = legs_[0].begin();
                     std::advance(it1, i + 1);
                     legs_[0].insert(
                         it1, ext::shared_ptr<CashFlow>(
                                  new Redemption(cap, legs_[0][i]->date())));
-                    std::vector<Real>::iterator it2 = fixedNominal_.begin();
+                    auto it2 = fixedNominal_.begin();
                     std::advance(it2, i + 1);
                     fixedNominal_.insert(it2, fixedNominal_[i]);
-                    std::vector<Real>::iterator it3 = fixedRate_.begin();
+                    auto it3 = fixedRate_.begin();
                     std::advance(it3, i + 1);
                     fixedRate_.insert(it3, 0.0);
                     i++;
@@ -178,13 +177,12 @@ namespace QuantLib {
             for (Size i = 0; i < legs_[1].size() - 1; i++) {
                 Real cap = floatingNominal_[i] - floatingNominal_[i + 1];
                 if (!close(cap, 0.0)) {
-                    std::vector<ext::shared_ptr<CashFlow> >::iterator it1 =
-                        legs_[1].begin();
+                    auto it1 = legs_[1].begin();
                     std::advance(it1, i + 1);
                     legs_[1].insert(
                         it1, ext::shared_ptr<CashFlow>(
                                  new Redemption(cap, legs_[1][i]->date())));
-                    std::vector<Real>::iterator it2 = floatingNominal_.begin();
+                    auto it2 = floatingNominal_.begin();
                     std::advance(it2, i + 1);
                     floatingNominal_.insert(it2, floatingNominal_[i]);
                     i++;
@@ -223,10 +221,9 @@ namespace QuantLib {
 
         Swap::setupArguments(args);
 
-        NonstandardSwap::arguments *arguments =
-            dynamic_cast<NonstandardSwap::arguments *>(args);
+        auto* arguments = dynamic_cast<NonstandardSwap::arguments*>(args);
 
-        if (!arguments)
+        if (arguments == nullptr)
             return; // swap engine ...
 
         arguments->type = type_;
@@ -245,7 +242,7 @@ namespace QuantLib {
         for (Size i = 0; i < fixedCoupons.size(); ++i) {
             ext::shared_ptr<FixedRateCoupon> coupon =
                 ext::dynamic_pointer_cast<FixedRateCoupon>(fixedCoupons[i]);
-            if (coupon) {
+            if (coupon != nullptr) {
                 arguments->fixedPayDates[i] = coupon->date();
                 arguments->fixedResetDates[i] = coupon->accrualStartDate();
                 arguments->fixedCoupons[i] = coupon->amount();
@@ -285,7 +282,7 @@ namespace QuantLib {
         for (Size i = 0; i < floatingCoupons.size(); ++i) {
             ext::shared_ptr<IborCoupon> coupon =
                 ext::dynamic_pointer_cast<IborCoupon>(floatingCoupons[i]);
-            if (coupon) {
+            if (coupon != nullptr) {
                 arguments->floatingResetDates[i] = coupon->accrualStartDate();
                 arguments->floatingPayDates[i] = coupon->date();
                 arguments->floatingFixingDates[i] = coupon->fixingDate();

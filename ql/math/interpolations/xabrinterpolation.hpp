@@ -129,7 +129,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
             std::vector<Real>(xEnd - xBegin, 1.0 / (xEnd - xBegin));
     }
 
-    void update() {
+    void update() override {
 
         this->updateModelInstance();
 
@@ -137,8 +137,8 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
 
         // we must update weights if it is vegaWeighted
         if (vegaWeighted_) {
-            std::vector<Real>::const_iterator x = this->xBegin_;
-            std::vector<Real>::const_iterator y = this->yBegin_;
+            I1 x = this->xBegin_;
+            I2 y = this->yBegin_;
             // std::vector<Real>::iterator w = weights_.begin();
             this->weights_.clear();
             Real weightsSum = 0.0;
@@ -149,7 +149,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
                 weightsSum += this->weights_.back();
             }
             // weight normalization
-            std::vector<Real>::iterator w = this->weights_.begin();
+            auto w = this->weights_.begin();
             for (; w != this->weights_.end(); ++w)
                 *w /= weightsSum;
         }
@@ -231,22 +231,18 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
         }
     }
 
-    Real value(Real x) const {
-        return this->modelInstance_->volatility(x);
-    }
+    Real value(Real x) const override { return this->modelInstance_->volatility(x); }
 
-    Real primitive(Real) const { QL_FAIL("XABR primitive not implemented"); }
-    Real derivative(Real) const { QL_FAIL("XABR derivative not implemented"); }
-    Real secondDerivative(Real) const {
-        QL_FAIL("XABR secondDerivative not implemented");
-    }
+    Real primitive(Real) const override { QL_FAIL("XABR primitive not implemented"); }
+    Real derivative(Real) const override { QL_FAIL("XABR derivative not implemented"); }
+    Real secondDerivative(Real) const override { QL_FAIL("XABR secondDerivative not implemented"); }
 
     // calculate total squared weighted difference (L2 norm)
     Real interpolationSquaredError() const {
         Real error, totalError = 0.0;
-        std::vector<Real>::const_iterator x = this->xBegin_;
-        std::vector<Real>::const_iterator y = this->yBegin_;
-        std::vector<Real>::const_iterator w = this->weights_.begin();
+        I1 x = this->xBegin_;
+        I2 y = this->yBegin_;
+        auto w = this->weights_.begin();
         for (; x != this->xEnd_; ++x, ++y, ++w) {
             error = (value(*x) - *y);
             totalError += error * error * (*w);
@@ -257,10 +253,10 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
     // calculate weighted differences
     Disposable<Array> interpolationErrors() const {
         Array results(this->xEnd_ - this->xBegin_);
-        std::vector<Real>::const_iterator x = this->xBegin_;
+        I1 x = this->xBegin_;
         Array::iterator r = results.begin();
-        std::vector<Real>::const_iterator y = this->yBegin_;
-        std::vector<Real>::const_iterator w = this->weights_.begin();
+        I2 y = this->yBegin_;
+        auto w = this->weights_.begin();
         for (; x != this->xEnd_; ++x, ++r, ++w, ++y) {
             *r = (value(*x) - *y) * std::sqrt(*w);
         }
@@ -289,7 +285,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
       public:
         explicit XABRError(XABRInterpolationImpl *xabr) : xabr_(xabr) {}
 
-        Real value(const Array &x) const {
+        Real value(const Array& x) const override {
             const Array y = Model().direct(x, xabr_->paramIsFixed_,
                                            xabr_->params_, xabr_->forward_);
             for (Size i = 0; i < xabr_->params_.size(); ++i)
@@ -298,7 +294,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
             return xabr_->interpolationSquaredError();
         }
 
-        Disposable<Array> values(const Array &x) const {
+        Disposable<Array> values(const Array& x) const override {
             const Array y = Model().direct(x, xabr_->paramIsFixed_,
                                            xabr_->params_, xabr_->forward_);
             for (Size i = 0; i < xabr_->params_.size(); ++i)

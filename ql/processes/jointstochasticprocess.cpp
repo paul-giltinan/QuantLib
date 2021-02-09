@@ -81,7 +81,7 @@ namespace QuantLib {
     Disposable<Array> JointStochasticProcess::initialValues() const {
         Array retVal(size());
 
-        for (const_iterator iter = l_.begin(); iter != l_.end(); ++iter) {
+        for (auto iter = l_.begin(); iter != l_.end(); ++iter) {
             const Array& pInitValues = (*iter)->initialValues();
 
             std::copy(pInitValues.begin(), pInitValues.end(),
@@ -277,7 +277,7 @@ namespace QuantLib {
 
 
         Array retVal(size());
-        for (const_iterator iter = l_.begin(); iter != l_.end(); ++iter) {
+        for (auto iter = l_.begin(); iter != l_.end(); ++iter) {
             const Size i = iter - l_.begin();
 
             Array dz((*iter)->factors());
@@ -301,7 +301,7 @@ namespace QuantLib {
     }
 
     Time JointStochasticProcess::time(const Date& date) const {
-        QL_REQUIRE(l_.size() > 0, "process list is empty");
+        QL_REQUIRE(!l_.empty(), "process list is empty");
 
         return l_[0]->time(date);
     }

@@ -57,14 +57,14 @@ namespace QuantLib {
               fuelPrice_(fuelPrice),
               powerPrice_(powerPrice) { }
 
-            Real innerValue(const FdmLinearOpIterator& iter, Time t) {
+            Real innerValue(const FdmLinearOpIterator& iter, Time t) override {
                 Array s(2);
                 s[0] = powerPrice_->innerValue(iter, t);
                 s[1] = fuelPrice_->innerValue(iter, t);
 
                 return (*basketPayoff_)(s);
             }
-            Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) {
+            Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) override {
                 return innerValue(iter, t);
             }
 
@@ -162,8 +162,8 @@ namespace QuantLib {
 
         // 4.1 Bermudan step conditions
         stoppingTimes.push_back(exerciseTimes);
-        const FdmVPPStepConditionMesher mesh = { 3u, mesher };
-        
+        const FdmVPPStepConditionMesher mesh = {3U, mesher};
+
         const ext::shared_ptr<FdmVPPStepCondition> stepCondition(
             stepConditionFactory.build(mesh, fuelCostAddon_,
                                        fuelPrice, sparkSpread));

@@ -31,6 +31,7 @@ Copyright (C) 2015 Thema Consulting SA
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
+#undef REPORT_FAILURE
 #define REPORT_FAILURE(greekName, payoff, exercise, barrierType, barrier_lo, \
                         barrier_hi, s, q, r, today, v, expected, calculated, \
                         error, tolerance) \
@@ -187,7 +188,7 @@ void DoubleBinaryOptionTest::testHaugValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             Option::Call, 0, values[i].cash));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> exercise;
         if (values[i].barrierType == DoubleBarrier::KIKO ||
             values[i].barrierType == DoubleBarrier::KOKI)
@@ -250,7 +251,7 @@ void DoubleBinaryOptionTest::testHaugValues() {
 
 
 test_suite* DoubleBinaryOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("DoubleBinary");
+    auto* suite = BOOST_TEST_SUITE("DoubleBinary");
     suite->add(QUANTLIB_TEST_CASE(&DoubleBinaryOptionTest::testHaugValues));
     return suite;
 }

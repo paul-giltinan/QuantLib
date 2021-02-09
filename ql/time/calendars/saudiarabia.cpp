@@ -80,8 +80,7 @@ namespace QuantLib {
                                       (Date(20, July, 2021))
                                       (Date(10, July, 2022));
 
-            for (std::vector<Date>::iterator p = EidAlAdha.begin();
-                                             p != EidAlAdha.end(); ++p) {
+            for (auto p = EidAlAdha.begin(); p != EidAlAdha.end(); ++p) {
                 if (d >= *p -1 && d <= *p + 4) {
                     return true;
                 }
@@ -123,8 +122,7 @@ namespace QuantLib {
                                       (Date(26, Feb, 2028))
                                       (Date(14, Feb, 2029));
 
-            for (std::vector<Date>::iterator p = EidAlFitr.begin();
-                                             p != EidAlFitr.end(); ++p) {
+            for (auto p = EidAlFitr.begin(); p != EidAlFitr.end(); ++p) {
                 if (d >= *p -1 && d <= *p + 4) {
                     return true;
                 }
@@ -165,7 +163,7 @@ namespace QuantLib {
             || (d == 26 && m == February && y==2011)
             || (d == 19 && m == March && y==2011)
             )
-            return false;
+            return false; // NOLINT(readability-simplify-boolean-expr)
         return true;
     }
 

@@ -32,63 +32,72 @@
 
 namespace QuantLib {
 
-    FloatFloatSwap::FloatFloatSwap(
-        const VanillaSwap::Type type, const Real nominal1, const Real nominal2,
-        const Schedule &schedule1,
-        const ext::shared_ptr<InterestRateIndex> &index1,
-        const DayCounter &dayCount1, const Schedule &schedule2,
-        const ext::shared_ptr<InterestRateIndex> &index2,
-        const DayCounter &dayCount2, const bool intermediateCapitalExchange,
-        const bool finalCapitalExchange, const Real gearing1,
-        const Real spread1, const Real cappedRate1, const Real flooredRate1,
-        const Real gearing2, const Real spread2, const Real cappedRate2,
-        const Real flooredRate2,
-        boost::optional<BusinessDayConvention> paymentConvention1,
-        boost::optional<BusinessDayConvention> paymentConvention2)
-        : Swap(2), type_(type),
-          nominal1_(std::vector<Real>(schedule1.size() - 1, nominal1)),
-          nominal2_(std::vector<Real>(schedule2.size() - 1, nominal2)),
-          schedule1_(schedule1), schedule2_(schedule2), index1_(index1),
-          index2_(index2),
-          gearing1_(std::vector<Real>(schedule1.size() - 1, gearing1)),
-          gearing2_(std::vector<Real>(schedule2.size() - 1, gearing2)),
-          spread1_(std::vector<Real>(schedule1.size() - 1, spread1)),
-          spread2_(std::vector<Real>(schedule2.size() - 1, spread2)),
-          cappedRate1_(std::vector<Real>(schedule1.size() - 1, cappedRate1)),
-          flooredRate1_(std::vector<Real>(schedule1.size() - 1, flooredRate1)),
-          cappedRate2_(std::vector<Real>(schedule2.size() - 1, cappedRate2)),
-          flooredRate2_(std::vector<Real>(schedule2.size() - 1, flooredRate2)),
-          dayCount1_(dayCount1), dayCount2_(dayCount2),
-          intermediateCapitalExchange_(intermediateCapitalExchange),
-          finalCapitalExchange_(finalCapitalExchange) {
+    FloatFloatSwap::FloatFloatSwap(const VanillaSwap::Type type,
+                                   const Real nominal1,
+                                   const Real nominal2,
+                                   const Schedule& schedule1,
+                                   const ext::shared_ptr<InterestRateIndex>& index1,
+                                   const DayCounter& dayCount1,
+                                   const Schedule& schedule2,
+                                   const ext::shared_ptr<InterestRateIndex>& index2,
+                                   const DayCounter& dayCount2,
+                                   const bool intermediateCapitalExchange,
+                                   const bool finalCapitalExchange,
+                                   const Real gearing1,
+                                   const Real spread1,
+                                   const Real cappedRate1,
+                                   const Real flooredRate1,
+                                   const Real gearing2,
+                                   const Real spread2,
+                                   const Real cappedRate2,
+                                   const Real flooredRate2,
+                                   const boost::optional<BusinessDayConvention>& paymentConvention1,
+                                   const boost::optional<BusinessDayConvention>& paymentConvention2)
+    : Swap(2), type_(type), nominal1_(std::vector<Real>(schedule1.size() - 1, nominal1)),
+      nominal2_(std::vector<Real>(schedule2.size() - 1, nominal2)), schedule1_(schedule1),
+      schedule2_(schedule2), index1_(index1), index2_(index2),
+      gearing1_(std::vector<Real>(schedule1.size() - 1, gearing1)),
+      gearing2_(std::vector<Real>(schedule2.size() - 1, gearing2)),
+      spread1_(std::vector<Real>(schedule1.size() - 1, spread1)),
+      spread2_(std::vector<Real>(schedule2.size() - 1, spread2)),
+      cappedRate1_(std::vector<Real>(schedule1.size() - 1, cappedRate1)),
+      flooredRate1_(std::vector<Real>(schedule1.size() - 1, flooredRate1)),
+      cappedRate2_(std::vector<Real>(schedule2.size() - 1, cappedRate2)),
+      flooredRate2_(std::vector<Real>(schedule2.size() - 1, flooredRate2)), dayCount1_(dayCount1),
+      dayCount2_(dayCount2), intermediateCapitalExchange_(intermediateCapitalExchange),
+      finalCapitalExchange_(finalCapitalExchange) {
 
         init(paymentConvention1, paymentConvention2);
     }
 
-    FloatFloatSwap::FloatFloatSwap(
-        const VanillaSwap::Type type, const std::vector<Real> &nominal1,
-        const std::vector<Real> &nominal2, const Schedule &schedule1,
-        const ext::shared_ptr<InterestRateIndex> &index1,
-        const DayCounter &dayCount1, const Schedule &schedule2,
-        const ext::shared_ptr<InterestRateIndex> &index2,
-        const DayCounter &dayCount2, const bool intermediateCapitalExchange,
-        const bool finalCapitalExchange, const std::vector<Real> &gearing1,
-        const std::vector<Real> &spread1, const std::vector<Real> &cappedRate1,
-        const std::vector<Real> &flooredRate1,
-        const std::vector<Real> &gearing2, const std::vector<Real> &spread2,
-        const std::vector<Real> &cappedRate2,
-        const std::vector<Real> &flooredRate2,
-        boost::optional<BusinessDayConvention> paymentConvention1,
-        boost::optional<BusinessDayConvention> paymentConvention2)
-        : Swap(2), type_(type), nominal1_(nominal1), nominal2_(nominal2),
-          schedule1_(schedule1), schedule2_(schedule2), index1_(index1),
-          index2_(index2), gearing1_(gearing1), gearing2_(gearing2),
-          spread1_(spread1), spread2_(spread2), cappedRate1_(cappedRate1),
-          flooredRate1_(flooredRate1), cappedRate2_(cappedRate2),
-          flooredRate2_(flooredRate2), dayCount1_(dayCount1),
-          dayCount2_(dayCount2),
-          intermediateCapitalExchange_(intermediateCapitalExchange),
-          finalCapitalExchange_(finalCapitalExchange) {
+    FloatFloatSwap::FloatFloatSwap(const VanillaSwap::Type type,
+                                   const std::vector<Real>& nominal1,
+                                   const std::vector<Real>& nominal2,
+                                   const Schedule& schedule1,
+                                   const ext::shared_ptr<InterestRateIndex>& index1,
+                                   const DayCounter& dayCount1,
+                                   const Schedule& schedule2,
+                                   const ext::shared_ptr<InterestRateIndex>& index2,
+                                   const DayCounter& dayCount2,
+                                   const bool intermediateCapitalExchange,
+                                   const bool finalCapitalExchange,
+                                   const std::vector<Real>& gearing1,
+                                   const std::vector<Real>& spread1,
+                                   const std::vector<Real>& cappedRate1,
+                                   const std::vector<Real>& flooredRate1,
+                                   const std::vector<Real>& gearing2,
+                                   const std::vector<Real>& spread2,
+                                   const std::vector<Real>& cappedRate2,
+                                   const std::vector<Real>& flooredRate2,
+                                   const boost::optional<BusinessDayConvention>& paymentConvention1,
+                                   const boost::optional<BusinessDayConvention>& paymentConvention2)
+    : Swap(2), type_(type), nominal1_(nominal1), nominal2_(nominal2), schedule1_(schedule1),
+      schedule2_(schedule2), index1_(index1), index2_(index2), gearing1_(gearing1),
+      gearing2_(gearing2), spread1_(spread1), spread2_(spread2), cappedRate1_(cappedRate1),
+      flooredRate1_(flooredRate1), cappedRate2_(cappedRate2), flooredRate2_(flooredRate2),
+      dayCount1_(dayCount1), dayCount2_(dayCount2),
+      intermediateCapitalExchange_(intermediateCapitalExchange),
+      finalCapitalExchange_(finalCapitalExchange) {
 
         init(paymentConvention1, paymentConvention2);
     }
@@ -105,62 +114,50 @@ namespace QuantLib {
                    "nominal2 size (" << nominal2_.size()
                                      << ") does not match schedule2 size ("
                                      << nominal2_.size() << ")");
-        QL_REQUIRE(gearing1_.size() == 0 ||
-                       gearing1_.size() == nominal1_.size(),
-                   "nominal1 size (" << nominal1_.size()
-                                     << ") does not match gearing1 size ("
+        QL_REQUIRE(gearing1_.empty() || gearing1_.size() == nominal1_.size(),
+                   "nominal1 size (" << nominal1_.size() << ") does not match gearing1 size ("
                                      << gearing1_.size() << ")");
-        QL_REQUIRE(gearing2_.size() == 0 ||
-                       gearing2_.size() == nominal2_.size(),
-                   "nominal2 size (" << nominal2_.size()
-                                     << ") does not match gearing2 size ("
+        QL_REQUIRE(gearing2_.empty() || gearing2_.size() == nominal2_.size(),
+                   "nominal2 size (" << nominal2_.size() << ") does not match gearing2 size ("
                                      << gearing2_.size() << ")");
-        QL_REQUIRE(cappedRate1_.size() == 0 ||
-                       cappedRate1_.size() == nominal1_.size(),
-                   "nominal1 size (" << nominal1_.size()
-                                     << ") does not match cappedRate1 size ("
+        QL_REQUIRE(cappedRate1_.empty() || cappedRate1_.size() == nominal1_.size(),
+                   "nominal1 size (" << nominal1_.size() << ") does not match cappedRate1 size ("
                                      << cappedRate1_.size() << ")");
-        QL_REQUIRE(cappedRate2_.size() == 0 ||
-                       cappedRate2_.size() == nominal2_.size(),
-                   "nominal2 size (" << nominal2_.size()
-                                     << ") does not match cappedRate2 size ("
+        QL_REQUIRE(cappedRate2_.empty() || cappedRate2_.size() == nominal2_.size(),
+                   "nominal2 size (" << nominal2_.size() << ") does not match cappedRate2 size ("
                                      << cappedRate2_.size() << ")");
-        QL_REQUIRE(flooredRate1_.size() == 0 ||
-                       flooredRate1_.size() == nominal1_.size(),
-                   "nominal1 size (" << nominal1_.size()
-                                     << ") does not match flooredRate1 size ("
+        QL_REQUIRE(flooredRate1_.empty() || flooredRate1_.size() == nominal1_.size(),
+                   "nominal1 size (" << nominal1_.size() << ") does not match flooredRate1 size ("
                                      << flooredRate1_.size() << ")");
-        QL_REQUIRE(flooredRate2_.size() == 0 ||
-                       flooredRate2_.size() == nominal2_.size(),
-                   "nominal2 size (" << nominal2_.size()
-                                     << ") does not match flooredRate2 size ("
+        QL_REQUIRE(flooredRate2_.empty() || flooredRate2_.size() == nominal2_.size(),
+                   "nominal2 size (" << nominal2_.size() << ") does not match flooredRate2 size ("
                                      << flooredRate2_.size() << ")");
 
-        if (paymentConvention1)
+        if (paymentConvention1) // NOLINT(readability-implicit-bool-conversion)
             paymentConvention1_ = *paymentConvention1;
         else
             paymentConvention1_ = schedule1_.businessDayConvention();
 
-        if (paymentConvention2)
+        if (paymentConvention2) // NOLINT(readability-implicit-bool-conversion)
             paymentConvention2_ = *paymentConvention2;
         else
             paymentConvention2_ = schedule2_.businessDayConvention();
 
-        if (gearing1_.size() == 0)
+        if (gearing1_.empty())
             gearing1_ = std::vector<Real>(nominal1_.size(), 1.0);
-        if (gearing2_.size() == 0)
+        if (gearing2_.empty())
             gearing2_ = std::vector<Real>(nominal2_.size(), 1.0);
-        if (spread1_.size() == 0)
+        if (spread1_.empty())
             spread1_ = std::vector<Real>(nominal1_.size(), 0.0);
-        if (spread2_.size() == 0)
+        if (spread2_.empty())
             spread2_ = std::vector<Real>(nominal2_.size(), 0.0);
-        if (cappedRate1_.size() == 0)
+        if (cappedRate1_.empty())
             cappedRate1_ = std::vector<Real>(nominal1_.size(), Null<Real>());
-        if (cappedRate2_.size() == 0)
+        if (cappedRate2_.empty())
             cappedRate2_ = std::vector<Real>(nominal2_.size(), Null<Real>());
-        if (flooredRate1_.size() == 0)
+        if (flooredRate1_.empty())
             flooredRate1_ = std::vector<Real>(nominal1_.size(), Null<Real>());
-        if (flooredRate2_.size() == 0)
+        if (flooredRate2_.empty())
             flooredRate2_ = std::vector<Real>(nominal2_.size(), Null<Real>());
 
         bool isNull;
@@ -236,12 +233,12 @@ namespace QuantLib {
         ext::shared_ptr<SwapSpreadIndex> cmsspread2 =
             ext::dynamic_pointer_cast<SwapSpreadIndex>(index2_);
 
-        QL_REQUIRE(ibor1 != NULL || cms1 != NULL || cmsspread1 != NULL,
+        QL_REQUIRE(ibor1 != nullptr || cms1 != nullptr || cmsspread1 != nullptr,
                    "index1 must be ibor or cms or cms spread");
-        QL_REQUIRE(ibor2 != NULL || cms2 != NULL || cmsspread2 != NULL,
+        QL_REQUIRE(ibor2 != nullptr || cms2 != nullptr || cmsspread2 != nullptr,
                    "index2 must be ibor or cms");
 
-        if (ibor1) {
+        if (ibor1 != nullptr) {
             IborLeg leg(schedule1_, ibor1);
             leg = leg.withNotionals(nominal1_)
                       .withPaymentDayCounter(dayCount1_)
@@ -255,7 +252,7 @@ namespace QuantLib {
             legs_[0] = leg;
         }
 
-        if (ibor2) {
+        if (ibor2 != nullptr) {
             IborLeg leg(schedule2_, ibor2);
             leg = leg.withNotionals(nominal2_)
                       .withPaymentDayCounter(dayCount2_)
@@ -269,7 +266,7 @@ namespace QuantLib {
             legs_[1] = leg;
         }
 
-        if (cms1) {
+        if (cms1 != nullptr) {
             CmsLeg leg(schedule1_, cms1);
             leg = leg.withNotionals(nominal1_)
                       .withPaymentDayCounter(dayCount1_)
@@ -283,7 +280,7 @@ namespace QuantLib {
             legs_[0] = leg;
         }
 
-        if (cms2) {
+        if (cms2 != nullptr) {
             CmsLeg leg(schedule2_, cms2);
             leg = leg.withNotionals(nominal2_)
                       .withPaymentDayCounter(dayCount2_)
@@ -297,7 +294,7 @@ namespace QuantLib {
             legs_[1] = leg;
         }
 
-        if (cmsspread1) {
+        if (cmsspread1 != nullptr) {
             CmsSpreadLeg leg(schedule1_, cmsspread1);
             leg = leg.withNotionals(nominal1_)
                       .withPaymentDayCounter(dayCount1_)
@@ -311,7 +308,7 @@ namespace QuantLib {
             legs_[0] = leg;
         }
 
-        if (cmsspread2) {
+        if (cmsspread2 != nullptr) {
             CmsSpreadLeg leg(schedule2_, cmsspread2);
             leg = leg.withNotionals(nominal2_)
                       .withPaymentDayCounter(dayCount2_)
@@ -329,13 +326,12 @@ namespace QuantLib {
             for (Size i = 0; i < legs_[0].size() - 1; i++) {
                 Real cap = nominal1_[i] - nominal1_[i + 1];
                 if (!close(cap, 0.0)) {
-                    std::vector<ext::shared_ptr<CashFlow> >::iterator it1 =
-                        legs_[0].begin();
+                    auto it1 = legs_[0].begin();
                     std::advance(it1, i + 1);
                     legs_[0].insert(
                         it1, ext::shared_ptr<CashFlow>(
                                  new Redemption(cap, legs_[0][i]->date())));
-                    std::vector<Real>::iterator it2 = nominal1_.begin();
+                    auto it2 = nominal1_.begin();
                     std::advance(it2, i + 1);
                     nominal1_.insert(it2, nominal1_[i]);
                     i++;
@@ -344,13 +340,12 @@ namespace QuantLib {
             for (Size i = 0; i < legs_[1].size() - 1; i++) {
                 Real cap = nominal2_[i] - nominal2_[i + 1];
                 if (!close(cap, 0.0)) {
-                    std::vector<ext::shared_ptr<CashFlow> >::iterator it1 =
-                        legs_[1].begin();
+                    auto it1 = legs_[1].begin();
                     std::advance(it1, i + 1);
                     legs_[1].insert(
                         it1, ext::shared_ptr<CashFlow>(
                                  new Redemption(cap, legs_[1][i]->date())));
-                    std::vector<Real>::iterator it2 = nominal2_.begin();
+                    auto it2 = nominal2_.begin();
                     std::advance(it2, i + 1);
                     nominal2_.insert(it2, nominal2_[i]);
                     i++;
@@ -391,10 +386,9 @@ namespace QuantLib {
 
         Swap::setupArguments(args);
 
-        FloatFloatSwap::arguments *arguments =
-            dynamic_cast<FloatFloatSwap::arguments *>(args);
+        auto* arguments = dynamic_cast<FloatFloatSwap::arguments*>(args);
 
-        if(!arguments)
+        if (arguments == nullptr)
             return; // swap engine ... // QL_REQUIRE(arguments != 0, "argument type does not match");
 
         arguments->type = type_;
@@ -434,7 +428,7 @@ namespace QuantLib {
         for (Size i = 0; i < leg1Coupons.size(); ++i) {
             ext::shared_ptr<FloatingRateCoupon> coupon =
                 ext::dynamic_pointer_cast<FloatingRateCoupon>(leg1Coupons[i]);
-            if (coupon) {
+            if (coupon != nullptr) {
                 arguments->leg1AccrualTimes[i] = coupon->accrualPeriod();
                 arguments->leg1PayDates[i] = coupon->date();
                 arguments->leg1ResetDates[i] = coupon->accrualStartDate();
@@ -450,7 +444,7 @@ namespace QuantLib {
                 ext::shared_ptr<CappedFlooredCoupon> cfcoupon =
                     ext::dynamic_pointer_cast<CappedFlooredCoupon>(
                         leg1Coupons[i]);
-                if (cfcoupon) {
+                if (cfcoupon != nullptr) {
                     arguments->leg1CappedRates[i] = cfcoupon->cap();
                     arguments->leg1FlooredRates[i] = cfcoupon->floor();
                 }
@@ -480,7 +474,7 @@ namespace QuantLib {
         for (Size i = 0; i < leg2Coupons.size(); ++i) {
             ext::shared_ptr<FloatingRateCoupon> coupon =
                 ext::dynamic_pointer_cast<FloatingRateCoupon>(leg2Coupons[i]);
-            if (coupon) {
+            if (coupon != nullptr) {
                 arguments->leg2AccrualTimes[i] = coupon->accrualPeriod();
                 arguments->leg2PayDates[i] = coupon->date();
                 arguments->leg2ResetDates[i] = coupon->accrualStartDate();
@@ -496,7 +490,7 @@ namespace QuantLib {
                 ext::shared_ptr<CappedFlooredCoupon> cfcoupon =
                     ext::dynamic_pointer_cast<CappedFlooredCoupon>(
                         leg2Coupons[i]);
-                if (cfcoupon) {
+                if (cfcoupon != nullptr) {
                     arguments->leg2CappedRates[i] = cfcoupon->cap();
                     arguments->leg2FlooredRates[i] = cfcoupon->floor();
                 }
@@ -576,8 +570,8 @@ namespace QuantLib {
         QL_REQUIRE(nominal2.size() == leg2IsRedemptionFlow.size(),
                    "nominal2 size is different from redemption2 size");
 
-        QL_REQUIRE(index1 != NULL, "index1 is null");
-        QL_REQUIRE(index2 != NULL, "index2 is null");
+        QL_REQUIRE(index1 != nullptr, "index1 is null");
+        QL_REQUIRE(index2 != nullptr, "index2 is null");
     }
 
     void FloatFloatSwap::results::reset() { Swap::results::reset(); }

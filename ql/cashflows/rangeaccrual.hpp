@@ -68,15 +68,13 @@ namespace QuantLib {
         const std::vector<Real>& observationTimes() const {
             return observationTimes_;
         }
-        const ext::shared_ptr<Schedule> observationsSchedule() const {
-            return observationsSchedule_;
-        }
+        ext::shared_ptr<Schedule> observationsSchedule() const { return observationsSchedule_; }
 
         Real priceWithoutOptionality(
                        const Handle<YieldTermStructure>& discountCurve) const;
         //! \name Visitability
         //@{
-        virtual void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
       private:
 
@@ -96,12 +94,12 @@ namespace QuantLib {
       public:
         //! \name Observer interface
         //@{
-        virtual Rate swapletRate() const;
-        virtual Real capletPrice(Rate effectiveCap) const;
-        virtual Rate capletRate(Rate effectiveCap) const;
-        virtual Real floorletPrice(Rate effectiveFloor) const;
-        virtual Rate floorletRate(Rate effectiveFloor) const;
-        void initialize(const FloatingRateCoupon& coupon);
+        Rate swapletRate() const override;
+        Real capletPrice(Rate effectiveCap) const override;
+        Rate capletRate(Rate effectiveCap) const override;
+        Real floorletPrice(Rate effectiveFloor) const override;
+        Rate floorletRate(Rate effectiveFloor) const override;
+        void initialize(const FloatingRateCoupon& coupon) override;
         //@}
 
     protected:
@@ -133,7 +131,7 @@ namespace QuantLib {
             bool byCallSpread);
         //! \name Observer interface
         //@{
-        virtual Real swapletPrice() const;
+        Real swapletPrice() const override;
         //@}
 
      protected:

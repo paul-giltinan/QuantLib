@@ -36,29 +36,27 @@ namespace QuantLib {
     class YieldTermStructure;
     class ExtendedOrnsteinUhlenbeckProcess;
 
-    class FdmExtendedOrnsteinUhlenbackOp : public FdmLinearOpComposite {
+    class FdmExtendedOrnsteinUhlenbeckOp : public FdmLinearOpComposite {
       public:
-        FdmExtendedOrnsteinUhlenbackOp(
+        FdmExtendedOrnsteinUhlenbeckOp(
                const ext::shared_ptr<FdmMesher>& mesher,
                const ext::shared_ptr<ExtendedOrnsteinUhlenbeckProcess>& p,
                const ext::shared_ptr<YieldTermStructure>& rTS,
                const FdmBoundaryConditionSet& bcSet,
                Size direction = 0);
 
-        Size size() const;
-        void setTime(Time t1, Time t2);
+        Size size() const override;
+        void setTime(Time t1, Time t2) override;
 
-        Disposable<Array> apply(const Array& r) const;
-        Disposable<Array> apply_mixed(const Array& r) const;
+        Disposable<Array> apply(const Array& r) const override;
+        Disposable<Array> apply_mixed(const Array& r) const override;
 
-        Disposable<Array> apply_direction(Size direction,
-                                          const Array& r) const;
-        Disposable<Array> solve_splitting(Size direction,
-                                          const Array& r, Real s) const;
-        Disposable<Array> preconditioner(const Array& r, Real s) const;
+        Disposable<Array> apply_direction(Size direction, const Array& r) const override;
+        Disposable<Array> solve_splitting(Size direction, const Array& r, Real s) const override;
+        Disposable<Array> preconditioner(const Array& r, Real s) const override;
 
 #if !defined(QL_NO_UBLAS_SUPPORT)
-        Disposable<std::vector<SparseMatrix> > toMatrixDecomp() const;
+        Disposable<std::vector<SparseMatrix> > toMatrixDecomp() const override;
 #endif
       private:
         const ext::shared_ptr<FdmMesher> mesher_;
@@ -73,5 +71,6 @@ namespace QuantLib {
         TripleBandLinearOp mapX_;
 
     };
+
 }
 #endif

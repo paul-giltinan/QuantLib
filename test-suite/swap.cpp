@@ -39,7 +39,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-namespace {
+namespace swap_test {
 
     struct CommonVars {
         // global data
@@ -58,8 +58,8 @@ namespace {
         SavedSettings backup;
         
         // utilities
-        ext::shared_ptr<VanillaSwap> makeSwap(Integer length, Rate fixedRate,
-                                                Spread floatingSpread) {
+        ext::shared_ptr<VanillaSwap>
+        makeSwap(Integer length, Rate fixedRate, Spread floatingSpread) const {
             Date maturity = calendar.advance(settlement,length,Years,
                                              floatingConvention);
             Schedule fixedSchedule(settlement,maturity,Period(fixedFrequency),
@@ -105,6 +105,8 @@ void SwapTest::testFairRate() {
 
     BOOST_TEST_MESSAGE("Testing vanilla-swap calculation of fair fixed rate...");
 
+    using namespace swap_test;
+
     CommonVars vars;
 
     Integer lengths[] = { 1, 2, 5, 10, 20 };
@@ -133,6 +135,8 @@ void SwapTest::testFairSpread() {
     BOOST_TEST_MESSAGE("Testing vanilla-swap calculation of "
                        "fair floating spread...");
 
+    using namespace swap_test;
+
     CommonVars vars;
 
     Integer lengths[] = { 1, 2, 5, 10, 20 };
@@ -159,6 +163,8 @@ void SwapTest::testRateDependency() {
 
     BOOST_TEST_MESSAGE("Testing vanilla-swap dependency on fixed rate...");
 
+    using namespace swap_test;
+
     CommonVars vars;
 
     Integer lengths[] = { 1, 2, 5, 10, 20 };
@@ -175,9 +181,7 @@ void SwapTest::testRateDependency() {
                 swap_values.push_back(swap->NPV());
             }
             // and check that they go the right way
-            std::vector<Real>::iterator it =
-                std::adjacent_find(swap_values.begin(),swap_values.end(),
-                                   std::less<Real>());
+            auto it = std::adjacent_find(swap_values.begin(), swap_values.end(), std::less<Real>());
             if (it != swap_values.end()) {
                 Size n = it - swap_values.begin();
                 BOOST_ERROR(
@@ -196,6 +200,8 @@ void SwapTest::testSpreadDependency() {
 
     BOOST_TEST_MESSAGE("Testing vanilla-swap dependency on floating spread...");
 
+    using namespace swap_test;
+
     CommonVars vars;
 
     Integer lengths[] = { 1, 2, 5, 10, 20 };
@@ -212,9 +218,8 @@ void SwapTest::testSpreadDependency() {
                 swap_values.push_back(swap->NPV());
             }
             // and check that they go the right way
-            std::vector<Real>::iterator it =
-                std::adjacent_find(swap_values.begin(),swap_values.end(),
-                                   std::greater<Real>());
+            auto it =
+                std::adjacent_find(swap_values.begin(), swap_values.end(), std::greater<Real>());
             if (it != swap_values.end()) {
                 Size n = it - swap_values.begin();
                 BOOST_ERROR(
@@ -232,6 +237,8 @@ void SwapTest::testSpreadDependency() {
 void SwapTest::testInArrears() {
 
     BOOST_TEST_MESSAGE("Testing in-arrears swap calculation...");
+
+    using namespace swap_test;
 
     CommonVars vars;
 
@@ -299,6 +306,8 @@ void SwapTest::testCachedValue() {
 
     BOOST_TEST_MESSAGE("Testing vanilla-swap calculation against cached value...");
 
+    using namespace swap_test;
+
     CommonVars vars;
 
     vars.today = Date(17,June,2002);
@@ -308,11 +317,18 @@ void SwapTest::testCachedValue() {
     vars.termStructure.linkTo(flatRate(vars.settlement,0.05,Actual365Fixed()));
 
     ext::shared_ptr<VanillaSwap> swap = vars.makeSwap(10, 0.06, 0.001);
-    #ifndef QL_USE_INDEXED_COUPON
-    Real cachedNPV   = -5.872863313209;
-    #else
-    Real cachedNPV   = -5.872342992212;
-    #endif
+
+    if (swap->numberOfLegs() != 2)
+        BOOST_ERROR("failed to return correct number of legs:\n"
+                    << std::fixed << std::setprecision(12)
+                    << "    calculated: " << swap->numberOfLegs() << "\n"
+                    << "    expected:   " << 2);
+
+    Real cachedNPV;  
+    if (IborCoupon::usingAtParCoupons())
+        cachedNPV = -5.872863313209;
+    else
+        cachedNPV = -5.872342992212;
 
     if (std::fabs(swap->NPV()-cachedNPV) > 1.0e-11)
         BOOST_ERROR("failed to reproduce cached swap value:\n"
@@ -323,7 +339,7 @@ void SwapTest::testCachedValue() {
 
 
 test_suite* SwapTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Swap tests");
+    auto* suite = BOOST_TEST_SUITE("Swap tests");
     suite->add(QUANTLIB_TEST_CASE(&SwapTest::testFairRate));
     suite->add(QUANTLIB_TEST_CASE(&SwapTest::testFairSpread));
     suite->add(QUANTLIB_TEST_CASE(&SwapTest::testRateDependency));

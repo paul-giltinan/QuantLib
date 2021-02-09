@@ -45,7 +45,7 @@
 #include <ql/math/optimization/levenbergmarquardt.hpp>
 #include <ql/experimental/volatility/noarbsabrinterpolation.hpp>
 #include <boost/foreach.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <ql/tuple.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
@@ -2057,10 +2057,10 @@ void InterpolationTest::testTransformations() {
             x[j] = 2.0 * size * s[j] - size;
 
         // sabr
-        y = detail::SABRSpecs().direct(x, fixed, params, forward);
+        y = QuantLib::detail::SABRSpecs().direct(x, fixed, params, forward);
         validateSabrParameters(y[0], y[1], y[2], y[3]);
-        z = detail::SABRSpecs().inverse(y, fixed, params, forward);
-        z = detail::SABRSpecs().direct(z, fixed, params, forward);
+        z = QuantLib::detail::SABRSpecs().inverse(y, fixed, params, forward);
+        z = QuantLib::detail::SABRSpecs().direct(z, fixed, params, forward);
         if (!close(z[0], y[0], N) || !close(z[1], y[1], N) || !close(z[2], y[2], N) ||
             !close(z[3], y[3], N))
             BOOST_ERROR("SabrInterpolation: direct(inverse("
@@ -2071,7 +2071,7 @@ void InterpolationTest::testTransformations() {
                         << z[3] - y[3] << ")");
 
         // noarb sabr
-        y = detail::NoArbSabrSpecs().direct(x, fixed, params, forward);
+        y = QuantLib::detail::NoArbSabrSpecs().direct(x, fixed, params, forward);
 
         // we can not invoke the constructor, this would be too slow, so
         // we copy the parameter check here ...
@@ -2079,24 +2079,24 @@ void InterpolationTest::testTransformations() {
         Real beta = y[1];
         Real nu = y[2];
         Real rho = y[3];
-        QL_REQUIRE(beta >= detail::NoArbSabrModel::beta_min &&
-                       beta <= detail::NoArbSabrModel::beta_max,
+        QL_REQUIRE(beta >= QuantLib::detail::NoArbSabrModel::beta_min &&
+                       beta <= QuantLib::detail::NoArbSabrModel::beta_max,
                    "beta (" << beta << ") out of bounds");
         Real sigmaI = alpha * std::pow(forward, beta - 1.0);
-        QL_REQUIRE(sigmaI >= detail::NoArbSabrModel::sigmaI_min &&
-                       sigmaI <= detail::NoArbSabrModel::sigmaI_max,
+        QL_REQUIRE(sigmaI >= QuantLib::detail::NoArbSabrModel::sigmaI_min &&
+                       sigmaI <= QuantLib::detail::NoArbSabrModel::sigmaI_max,
                    "sigmaI = alpha*forward^(beta-1.0) ("
                        << sigmaI << ") out of bounds, alpha=" << alpha
                        << " beta=" << beta << " forward=" << forward);
-        QL_REQUIRE(nu >= detail::NoArbSabrModel::nu_min &&
-                       nu <= detail::NoArbSabrModel::nu_max,
+        QL_REQUIRE(nu >= QuantLib::detail::NoArbSabrModel::nu_min &&
+                       nu <= QuantLib::detail::NoArbSabrModel::nu_max,
                    "nu (" << nu << ") out of bounds");
-        QL_REQUIRE(rho >= detail::NoArbSabrModel::rho_min &&
-                       rho <= detail::NoArbSabrModel::rho_max,
+        QL_REQUIRE(rho >= QuantLib::detail::NoArbSabrModel::rho_min &&
+                       rho <= QuantLib::detail::NoArbSabrModel::rho_max,
                    "rho (" << rho << ") out of bounds");
 
-        z = detail::NoArbSabrSpecs().inverse(y, fixed, params, forward);
-        z = detail::NoArbSabrSpecs().direct(z, fixed, params, forward);
+        z = QuantLib::detail::NoArbSabrSpecs().inverse(y, fixed, params, forward);
+        z = QuantLib::detail::NoArbSabrSpecs().direct(z, fixed, params, forward);
         if (!close(z[0], y[0], N) || !close(z[1], y[1], N) || !close(z[2], y[2], N) ||
             !close(z[3], y[3], N))
             BOOST_ERROR("NoArbSabrInterpolation: direct(inverse("
@@ -2109,8 +2109,8 @@ void InterpolationTest::testTransformations() {
 }
 
 void InterpolationTest::testFlochKennedySabrIsSmoothAroundATM() {
-    BOOST_TEST_MESSAGE("Testing that Andersen Sabr formula is smooth"
-            "close to the ATM level...");
+    BOOST_TEST_MESSAGE("Testing that Andersen SABR formula is smooth "
+                       "close to the ATM level...");
 
     const Real f0    = 1.1;
     const Real alpha = 0.35;
@@ -2377,24 +2377,24 @@ void InterpolationTest::testBSplines() {
     const Natural p = 2;
     const BSpline bspline(p, knots.size()-p-2, knots);
 
-    std::vector<boost::tuple<Natural, Real, Real> > referenceValues;
-    referenceValues += boost::make_tuple(0, -0.95, 9.5238095238e-04),
-        boost::make_tuple(0, -0.01, 0.37337142857),
-        boost::make_tuple(0, 0.49, 0.84575238095),
-        boost::make_tuple(0, 1.21, 0.0),
-        boost::make_tuple(1, 1.49, 0.562987654321),
-        boost::make_tuple(1, 1.59, 0.490888888889),
-        boost::make_tuple(2, 1.99, 0.62429409171),
-        boost::make_tuple(3, 1.19, 0.0),
-        boost::make_tuple(3, 1.99, 0.12382936508),
-        boost::make_tuple(3, 3.59, 0.765914285714);
+    std::vector<ext::tuple<Natural, Real, Real> > referenceValues;
+    referenceValues += ext::make_tuple(0, -0.95, 9.5238095238e-04),
+        ext::make_tuple(0, -0.01, 0.37337142857),
+        ext::make_tuple(0, 0.49, 0.84575238095),
+        ext::make_tuple(0, 1.21, 0.0),
+        ext::make_tuple(1, 1.49, 0.562987654321),
+        ext::make_tuple(1, 1.59, 0.490888888889),
+        ext::make_tuple(2, 1.99, 0.62429409171),
+        ext::make_tuple(3, 1.19, 0.0),
+        ext::make_tuple(3, 1.99, 0.12382936508),
+        ext::make_tuple(3, 3.59, 0.765914285714);
 
 
     const Real tol = 1e-10;
     for (Size i=0; i < referenceValues.size(); ++i) {
-        const Natural idx = referenceValues[i].get<0>();
-        const Real x = referenceValues[i].get<1>();
-        const Real expected = referenceValues[i].get<2>();
+        const Natural idx = ext::get<0>(referenceValues[i]);
+        const Real x = ext::get<1>(referenceValues[i]);
+        const Real expected = ext::get<2>(referenceValues[i]);
 
         const Real calculated = bspline(idx, x);
 
@@ -2447,7 +2447,7 @@ void InterpolationTest::testBackwardFlatOnSinglePoint() {
 }
 
 test_suite* InterpolationTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Interpolation tests");
+    auto* suite = BOOST_TEST_SUITE("Interpolation tests");
 
     suite->add(QUANTLIB_TEST_CASE(
                         &InterpolationTest::testSplineOnGenericValues));

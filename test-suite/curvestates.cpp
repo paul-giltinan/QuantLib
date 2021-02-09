@@ -34,18 +34,13 @@
 #include <ql/time/daycounters/simpledaycounter.hpp>
 #include <sstream>
 
-#if defined(BOOST_MSVC)
-#include <float.h>
-//namespace { unsigned int u = _controlfp(_EM_INEXACT, _MCW_EM); }
-#endif
-
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
 #define BEGIN(x) (x+0)
 #define END(x) (x+LENGTH(x))
 
-namespace {
+namespace curve_states_test {
 
     struct CommonVars {
         // global data
@@ -128,12 +123,16 @@ void CurveStatesTest::testLMMCurveState() {
 
     BOOST_TEST_MESSAGE("Testing Libor-market-model curve state...");
 
+    using namespace curve_states_test;
+
     CommonVars vars;
 }
 
 void CurveStatesTest::testCoterminalSwapCurveState() {
 
     BOOST_TEST_MESSAGE("Testing coterminal-swap-market-model curve state...");
+
+    using namespace curve_states_test;
 
     CommonVars vars;
 }
@@ -142,6 +141,8 @@ void CurveStatesTest::testCoterminalSwapCurveState() {
 void CurveStatesTest::testCMSwapCurveState() {
 
     BOOST_TEST_MESSAGE("Testing constant-maturity-swap-market-model curve state...");
+
+    using namespace curve_states_test;
 
     CommonVars vars;
 
@@ -202,7 +203,7 @@ void CurveStatesTest::testCMSwapCurveState() {
 
 // --- Call the desired tests
 test_suite* CurveStatesTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Curve States tests");
+    auto* suite = BOOST_TEST_SUITE("Curve States tests");
     //suite->add(QUANTLIB_TEST_CASE(&CurveStatesTest::testLMMCurveState));
     //suite->add(QUANTLIB_TEST_CASE(&CurveStatesTest::testCoterminalSwapCurveState));
     suite->add(QUANTLIB_TEST_CASE(&CurveStatesTest::testCMSwapCurveState));

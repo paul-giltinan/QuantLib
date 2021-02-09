@@ -46,13 +46,12 @@ namespace QuantLib {
             const Instrument::results* results_;
         };
 
-        IrregularImpliedVolHelper::IrregularImpliedVolHelper(
-                                                              const IrregularSwaption& swaption,
-                                                              const Handle<YieldTermStructure>& discountCurve,
-                                                              Real targetValue)
-        : discountCurve_(discountCurve), targetValue_(targetValue) {
+        IrregularImpliedVolHelper::IrregularImpliedVolHelper(const IrregularSwaption& swaption,
+                                                             const Handle<YieldTermStructure>& discountCurve,
+                                                             Real targetValue)
+        : discountCurve_(discountCurve), targetValue_(targetValue),
+          vol_(ext::make_shared<SimpleQuote>(-1.0)) {
 
-            vol_ = ext::make_shared<SimpleQuote>(-1.0);
             Handle<Quote> h(vol_);
             engine_ = ext::shared_ptr<PricingEngine>(new
                                     BlackSwaptionEngine(discountCurve_, h));
@@ -75,8 +74,7 @@ namespace QuantLib {
                 vol_->setValue(x);
                 engine_->calculate();
             }
-            std::map<std::string,boost::any>::const_iterator vega_ =
-                results_->additionalResults.find("vega");
+            auto vega_ = results_->additionalResults.find("vega");
             QL_REQUIRE(vega_ != results_->additionalResults.end(),
                        "vega not provided");
             return boost::any_cast<Real>(vega_->second);
@@ -111,10 +109,9 @@ namespace QuantLib {
 
         swap_->setupArguments(args);
 
-        IrregularSwaption::arguments* arguments =
-            dynamic_cast<IrregularSwaption::arguments*>(args);
+        auto* arguments = dynamic_cast<IrregularSwaption::arguments*>(args);
 
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
 
         arguments->swap = swap_;
         arguments->settlementType = settlementType_;

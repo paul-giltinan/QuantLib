@@ -3,7 +3,7 @@
 /*
  Copyright (C) 2003 Ferdinando Ametrano
  Copyright (C) 2014 Klaus Spanderen
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -310,7 +310,7 @@ void FunctionsTest::testWeightedModifiedBesselFunctions() {
 }
 
 test_suite* FunctionsTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Factorial tests");
+    auto* suite = BOOST_TEST_SUITE("Factorial tests");
     suite->add(QUANTLIB_TEST_CASE(&FunctionsTest::testFactorial));
     suite->add(QUANTLIB_TEST_CASE(&FunctionsTest::testGammaFunction));
     suite->add(QUANTLIB_TEST_CASE(&FunctionsTest::testGammaValues));

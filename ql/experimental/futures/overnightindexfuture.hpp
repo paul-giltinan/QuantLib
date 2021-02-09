@@ -2,6 +2,7 @@
 
 /*
  Copyright (C) 2018 Roy Zywina
+ Copyright (C) 2019 Eisuke Tani
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -34,28 +35,33 @@ namespace QuantLib {
     SOFR futures and Sonia futures available on CME and ICE exchanges.
     */
     class OvernightIndexFuture : public Forward {
-    public:
-        OvernightIndexFuture(
-            const ext::shared_ptr<OvernightIndex>& overnightIndex,
-            const ext::shared_ptr<Payoff>& payoff,
-            const Date& valueDate,
-            const Date& maturityDate,
-            const Handle<YieldTermStructure>& discountCurve,
-            const Handle<Quote>& convexityAdjustment = Handle<Quote>());
+      public:
+        enum NettingType { Averaging, Compounding };
+
+        OvernightIndexFuture(const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                             const ext::shared_ptr<Payoff>& payoff,
+                             const Date& valueDate,
+                             const Date& maturityDate,
+                             const Handle<YieldTermStructure>& discountCurve,
+                             const Handle<Quote>& convexityAdjustment = Handle<Quote>(),
+                             NettingType subPeriodsNettingType = Compounding);
 
         //! returns spot value/price of an underlying financial instrument
-        virtual Real spotValue() const;
+        Real spotValue() const override;
 
         //! NPV of income/dividends/storage-costs etc. of underlying instrument
-        virtual Real spotIncome(const Handle<YieldTermStructure>&) const;
+        Real spotIncome(const Handle<YieldTermStructure>&) const override;
 
-        virtual Real forwardValue() const;
+        Real forwardValue() const override;
 
         Real convexityAdjustment() const;
 
-    protected:
+      private:
+        Real averagedSpotValue() const;
+        Real compoundedSpotValue() const;
         ext::shared_ptr<OvernightIndex> overnightIndex_;
         Handle<Quote> convexityAdjustment_;
+        NettingType subPeriodsNettingType_;
     };
 
 }

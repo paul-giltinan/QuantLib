@@ -35,17 +35,11 @@ namespace QuantLib {
         typedef Real argument_type;
         typedef Real result_type;
 
-        CumulativeChiSquareDistribution(Real df) : df_(df) {}
+        explicit CumulativeChiSquareDistribution(Real df) : df_(df) {}
         Real operator()(Real x) const;
       private:
         Real df_;
     };
-
-    /*! \deprecated Use CumulativeChiSquareDistribution instead.
-                    Deprecated in version 1.12.
-    */
-    QL_DEPRECATED
-    typedef CumulativeChiSquareDistribution ChiSquareDistribution;
 
     class NonCentralCumulativeChiSquareDistribution {
       public:
@@ -58,12 +52,6 @@ namespace QuantLib {
       private:
         Real df_, ncp_;
     };
-
-    /*! \deprecated Use NonCentralCumulativeChiSquareDistribution instead.
-                    Deprecated in version 1.12.
-    */
-    QL_DEPRECATED
-    typedef NonCentralCumulativeChiSquareDistribution NonCentralChiSquareDistribution;
 
     class NonCentralCumulativeChiSquareSankaranApprox {
       public:
@@ -93,12 +81,6 @@ namespace QuantLib {
         const Size maxEvaluations_;
         const Real accuracy_;
     };
-
-    /*! \deprecated Use InverseNonCentralCumulativeChiSquareDistribution instead.
-	            Deprecated in version 1.12.
-    */
-    QL_DEPRECATED
-    typedef InverseNonCentralCumulativeChiSquareDistribution InverseNonCentralChiSquareDistribution;
 
 }
 

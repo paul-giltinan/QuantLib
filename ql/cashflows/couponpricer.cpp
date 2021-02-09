@@ -48,7 +48,7 @@ namespace QuantLib {
         index_ = ext::dynamic_pointer_cast<IborIndex>(coupon.index());
         if (!index_) {
             // check if the coupon was right
-            const IborCoupon* c = dynamic_cast<const IborCoupon*>(&coupon);
+            const auto* c = dynamic_cast<const IborCoupon*>(&coupon);
             QL_REQUIRE(c, "IborCoupon required");
             // coupon was right, index is not
             QL_FAIL("IborIndex required");
@@ -192,21 +192,21 @@ namespace QuantLib {
                     const ext::shared_ptr<FloatingRateCouponPricer>& pricer)
             : pricer_(pricer) {}
 
-            void visit(CashFlow& c);
-            void visit(Coupon& c);
-            void visit(FloatingRateCoupon& c);
-            void visit(CappedFlooredCoupon& c);
-            void visit(IborCoupon& c);
-            void visit(CappedFlooredIborCoupon& c);
-            void visit(DigitalIborCoupon& c);
-            void visit(CmsCoupon& c);
-            void visit(CmsSpreadCoupon& c);
-            void visit(CappedFlooredCmsCoupon& c);
-            void visit(CappedFlooredCmsSpreadCoupon& c);
-            void visit(DigitalCmsCoupon& c);
-            void visit(DigitalCmsSpreadCoupon& c);
-            void visit(RangeAccrualFloatersCoupon& c);
-            void visit(SubPeriodsCoupon& c);
+            void visit(CashFlow& c) override;
+            void visit(Coupon& c) override;
+            void visit(FloatingRateCoupon& c) override;
+            void visit(CappedFlooredCoupon& c) override;
+            void visit(IborCoupon& c) override;
+            void visit(CappedFlooredIborCoupon& c) override;
+            void visit(DigitalIborCoupon& c) override;
+            void visit(CmsCoupon& c) override;
+            void visit(CmsSpreadCoupon& c) override;
+            void visit(CappedFlooredCmsCoupon& c) override;
+            void visit(CappedFlooredCmsSpreadCoupon& c) override;
+            void visit(DigitalCmsCoupon& c) override;
+            void visit(DigitalCmsSpreadCoupon& c) override;
+            void visit(RangeAccrualFloatersCoupon& c) override;
+            void visit(SubPeriodsCoupon& c) override;
         };
 
         void PricerSetter::visit(CashFlow&) {
@@ -225,13 +225,13 @@ namespace QuantLib {
             // we might end up here because a CappedFlooredCoupon
             // was directly constructed; we should then check
             // the underlying for consistency with the pricer
-            if (ext::dynamic_pointer_cast<IborCoupon>(c.underlying())) {
+            if (ext::dynamic_pointer_cast<IborCoupon>(c.underlying()) != nullptr) {
                 QL_REQUIRE(ext::dynamic_pointer_cast<IborCouponPricer>(pricer_),
                            "pricer not compatible with Ibor Coupon");
-            } else if (ext::dynamic_pointer_cast<CmsCoupon>(c.underlying())) {
+            } else if (ext::dynamic_pointer_cast<CmsCoupon>(c.underlying()) != nullptr) {
                 QL_REQUIRE(ext::dynamic_pointer_cast<CmsCouponPricer>(pricer_),
                            "pricer not compatible with CMS Coupon");
-            } else if (ext::dynamic_pointer_cast<CmsSpreadCoupon>(c.underlying())) {
+            } else if (ext::dynamic_pointer_cast<CmsSpreadCoupon>(c.underlying()) != nullptr) {
                 QL_REQUIRE(ext::dynamic_pointer_cast<CmsSpreadCouponPricer>(pricer_),
                            "pricer not compatible with CMS spread Coupon");
             }

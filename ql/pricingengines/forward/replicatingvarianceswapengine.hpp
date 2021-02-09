@@ -50,13 +50,14 @@ namespace QuantLib {
              Real dk = 5.0,
              const std::vector<Real>& callStrikes = std::vector<Real>(),
              const std::vector<Real>& putStrikes = std::vector<Real>());
-        void calculate() const;
+        void calculate() const override;
+
       protected:
         // helper methods
         void computeOptionWeights(const std::vector<Real>&,
-                                  const Option::Type,
+                                  Option::Type,
                                   weights_type& optionWeights) const;
-        Real computeLogPayoff(const Real, const Real) const;
+        Real computeLogPayoff(Real, Real) const;
         Real computeReplicatingPortfolio(
                                      const weights_type& optionWeights) const;
         Rate riskFreeRate() const;
@@ -115,8 +116,7 @@ namespace QuantLib {
         }
 
         // remove duplicate strikes
-        std::vector<Real>::iterator last =
-            std::unique(strikes.begin(), strikes.end());
+        auto last = std::unique(strikes.begin(), strikes.end());
         strikes.erase(last, strikes.end());
 
         // compute weights
@@ -163,8 +163,7 @@ namespace QuantLib {
                                         new AnalyticEuropeanEngine(process_));
         Real optionsValue = 0.0;
 
-        for (weights_type::const_iterator i = optionWeights.begin();
-             i < optionWeights.end(); ++i) {
+        for (auto i = optionWeights.begin(); i < optionWeights.end(); ++i) {
             ext::shared_ptr<StrikedTypePayoff> payoff = i->first;
             EuropeanOption option(payoff, exercise);
             option.setPricingEngine(optionEngine);

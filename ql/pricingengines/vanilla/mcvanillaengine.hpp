@@ -37,7 +37,7 @@ namespace QuantLib {
     class MCVanillaEngine : public Inst::engine,
                             public McSimulation<MC,RNG,S> {
       public:
-        void calculate() const {
+        void calculate() const override {
             McSimulation<MC,RNG,S>::calculate(requiredTolerance_,
                                               requiredSamples_,
                                               maxSamples_);
@@ -46,6 +46,7 @@ namespace QuantLib {
             this->results_.errorEstimate =
                 this->mcModel_->sampleAccumulator().errorEstimate();
         }
+
       protected:
         typedef typename McSimulation<MC,RNG,S>::path_generator_type
             path_generator_type;
@@ -67,8 +68,8 @@ namespace QuantLib {
                         Size maxSamples,
                         BigNatural seed);
         // McSimulation implementation
-        TimeGrid timeGrid() const;
-        ext::shared_ptr<path_generator_type> pathGenerator() const {
+        TimeGrid timeGrid() const override;
+        ext::shared_ptr<path_generator_type> pathGenerator() const override {
 
             Size dimensions = process_->factors();
             TimeGrid grid = this->timeGrid();
@@ -78,7 +79,7 @@ namespace QuantLib {
                    new path_generator_type(process_, grid,
                                            generator, brownianBridge_));
         }
-        result_type controlVariateValue() const;
+        result_type controlVariateValue() const override;
         // data members
         ext::shared_ptr<StochasticProcess> process_;
         Size timeSteps_, timeStepsPerYear_;
@@ -134,18 +135,15 @@ namespace QuantLib {
                    "engine does not provide "
                    "control variation pricing engine");
 
-        typename Inst::arguments* controlArguments =
-                dynamic_cast<typename Inst::arguments*>(
-                                                   controlPE->getArguments());
+        auto* controlArguments = dynamic_cast<typename Inst::arguments*>(controlPE->getArguments());
 
         QL_REQUIRE(controlArguments, "engine is using inconsistent arguments");
 
         *controlArguments = this->arguments_;
         controlPE->calculate();
 
-        const typename Inst::results* controlResults =
-                dynamic_cast<const typename Inst::results*>(
-                                                     controlPE->getResults());
+        const auto* controlResults =
+            dynamic_cast<const typename Inst::results*>(controlPE->getResults());
         QL_REQUIRE(controlResults,
                    "engine returns an inconsistent result type");
 

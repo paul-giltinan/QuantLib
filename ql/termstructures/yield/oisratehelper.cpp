@@ -37,8 +37,11 @@ namespace QuantLib {
                     Frequency paymentFrequency,
                     const Calendar& paymentCalendar,
                     const Period& forwardStart, 
-                    const Spread overnightSpread)
+                    const Spread overnightSpread,
+                    Pillar::Choice pillar,
+                    Date customPillarDate)
     : RelativeDateRateHelper(fixedRate),
+      pillarChoice_(pillar),
       settlementDays_(settlementDays), tenor_(tenor),
       overnightIndex_(overnightIndex), discountHandle_(discount),
       telescopicValueDates_(telescopicValueDates),
@@ -48,6 +51,8 @@ namespace QuantLib {
       forwardStart_(forwardStart), overnightSpread_(overnightSpread) {
         registerWith(overnightIndex_);
         registerWith(discountHandle_);
+
+        pillarDate_ = customPillarDate;
         initializeDates();
     }
 
@@ -73,7 +78,35 @@ namespace QuantLib {
             .withOvernightLegSpread(overnightSpread_);
 
         earliestDate_ = swap_->startDate();
-        latestDate_ = swap_->maturityDate();
+        maturityDate_ = swap_->maturityDate();
+
+        Date lastPaymentDate = std::max(swap_->overnightLeg().back()->date(),
+                                        swap_->fixedLeg().back()->date());
+        latestRelevantDate_ = std::max(maturityDate_, lastPaymentDate);
+
+        switch (pillarChoice_) {
+          case Pillar::MaturityDate:
+            pillarDate_ = maturityDate_;
+            break;
+          case Pillar::LastRelevantDate:
+            pillarDate_ = latestRelevantDate_;
+            break;
+          case Pillar::CustomDate:
+            // pillarDate_ already assigned at construction time
+            QL_REQUIRE(pillarDate_ >= earliestDate_,
+                       "pillar date (" << pillarDate_ << ") must be later "
+                       "than or equal to the instrument's earliest date (" <<
+                       earliestDate_ << ")");
+            QL_REQUIRE(pillarDate_ <= latestRelevantDate_,
+                       "pillar date (" << pillarDate_ << ") must be before "
+                       "or equal to the instrument's latest relevant date (" <<
+                       latestRelevantDate_ << ")");
+            break;
+          default:
+            QL_FAIL("unknown Pillar::Choice(" << Integer(pillarChoice_) << ")");
+        }
+
+        latestDate_ = std::max(swap_->maturityDate(), lastPaymentDate);
     }
 
     void OISRateHelper::setTermStructure(YieldTermStructure* t) {
@@ -93,16 +126,15 @@ namespace QuantLib {
     }
 
     Real OISRateHelper::impliedQuote() const {
-        QL_REQUIRE(termStructure_ != 0, "term structure not set");
+        QL_REQUIRE(termStructure_ != nullptr, "term structure not set");
         // we didn't register as observers - force calculation
         swap_->recalculate();
         return swap_->fairRate();
     }
 
     void OISRateHelper::accept(AcyclicVisitor& v) {
-        Visitor<OISRateHelper>* v1 =
-            dynamic_cast<Visitor<OISRateHelper>*>(&v);
-        if (v1 != 0)
+        auto* v1 = dynamic_cast<Visitor<OISRateHelper>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             RateHelper::accept(v);
@@ -137,7 +169,9 @@ namespace QuantLib {
             .withTelescopicValueDates(telescopicValueDates_);
 
         earliestDate_ = swap_->startDate();
-        latestDate_ = swap_->maturityDate();
+        Date lastPaymentDate = std::max(swap_->overnightLeg().back()->date(),
+                                        swap_->fixedLeg().back()->date());
+        latestDate_ = std::max(swap_->maturityDate(), lastPaymentDate);
     }
 
     void DatedOISRateHelper::setTermStructure(YieldTermStructure* t) {
@@ -157,16 +191,15 @@ namespace QuantLib {
     }
 
     Real DatedOISRateHelper::impliedQuote() const {
-        QL_REQUIRE(termStructure_ != 0, "term structure not set");
+        QL_REQUIRE(termStructure_ != nullptr, "term structure not set");
         // we didn't register as observers - force calculation
         swap_->deepUpdate();
         return swap_->fairRate();
     }
 
     void DatedOISRateHelper::accept(AcyclicVisitor& v) {
-        Visitor<DatedOISRateHelper>* v1 =
-            dynamic_cast<Visitor<DatedOISRateHelper>*>(&v);
-        if (v1 != 0)
+        auto* v1 = dynamic_cast<Visitor<DatedOISRateHelper>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             RateHelper::accept(v);

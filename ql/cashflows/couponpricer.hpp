@@ -43,7 +43,7 @@ namespace QuantLib {
     class FloatingRateCouponPricer: public virtual Observer,
                                     public virtual Observable {
       public:
-        virtual ~FloatingRateCouponPricer() {}
+        ~FloatingRateCouponPricer() override {}
         //! \name required interface
         //@{
         virtual Real swapletPrice() const = 0;
@@ -56,7 +56,7 @@ namespace QuantLib {
         //@}
         //! \name Observer interface
         //@{
-        void update(){notifyObservers();}
+        void update() override { notifyObservers(); }
         //@}
     };
 
@@ -94,26 +94,24 @@ namespace QuantLib {
       public:
         enum TimingAdjustment { Black76, BivariateLognormal };
         BlackIborCouponPricer(
-            const Handle<OptionletVolatilityStructure>& v =
-                Handle<OptionletVolatilityStructure>(),
+            const Handle<OptionletVolatilityStructure>& v = Handle<OptionletVolatilityStructure>(),
             const TimingAdjustment timingAdjustment = Black76,
-            const Handle<Quote> correlation =
+            const Handle<Quote>& correlation =
                 Handle<Quote>(ext::shared_ptr<Quote>(new SimpleQuote(1.0))))
-            : IborCouponPricer(v), timingAdjustment_(timingAdjustment),
-              correlation_(correlation) {
-            QL_REQUIRE(timingAdjustment_ == Black76 ||
-                           timingAdjustment_ == BivariateLognormal,
-                       "unknown timing adjustment (code " << timingAdjustment_
-                                                          << ")");
+        : IborCouponPricer(v), timingAdjustment_(timingAdjustment), correlation_(correlation) {
+            { // this additional scope seems required to avoid a misleading-indentation warning
+                QL_REQUIRE(timingAdjustment_ == Black76 || timingAdjustment_ == BivariateLognormal,
+                           "unknown timing adjustment (code " << timingAdjustment_ << ")");
+            }
             registerWith(correlation_);
         };
-        virtual void initialize(const FloatingRateCoupon& coupon);
-        Real swapletPrice() const;
-        Rate swapletRate() const;
-        Real capletPrice(Rate effectiveCap) const;
-        Rate capletRate(Rate effectiveCap) const;
-        Real floorletPrice(Rate effectiveFloor) const;
-        Rate floorletRate(Rate effectiveFloor) const;
+        void initialize(const FloatingRateCoupon& coupon) override;
+        Real swapletPrice() const override;
+        Rate swapletRate() const override;
+        Real capletPrice(Rate effectiveCap) const override;
+        Rate capletRate(Rate effectiveCap) const override;
+        Real floorletPrice(Rate effectiveFloor) const override;
+        Rate floorletRate(Rate effectiveFloor) const override;
 
       protected:
         Real optionletPrice(Option::Type optionType,

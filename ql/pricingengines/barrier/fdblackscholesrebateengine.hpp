@@ -40,14 +40,14 @@ namespace QuantLib {
     class FdBlackScholesRebateEngine : public DividendBarrierOption::engine {
       public:
         // Constructor
-          FdBlackScholesRebateEngine(
+        explicit FdBlackScholesRebateEngine(
                 const ext::shared_ptr<GeneralizedBlackScholesProcess>& process,
                 Size tGrid = 100, Size xGrid = 100, Size dampingSteps = 0,
                 const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Douglas(),
                 bool localVol = false, 
                 Real illegalLocalVolOverwrite = -Null<Real>());
 
-        void calculate() const;
+        void calculate() const override;
 
       private:
         const ext::shared_ptr<GeneralizedBlackScholesProcess> process_;

@@ -50,24 +50,22 @@ namespace QuantLib {
     }
 
     ArithmeticAverageOIS::ArithmeticAverageOIS(
-                    Type type,
-                    std::vector<Real> nominals,
-                    const Schedule& fixedLegSchedule,
-                    Rate fixedRate,
-                    const DayCounter& fixedDC,
-                    const ext::shared_ptr<OvernightIndex>& overnightIndex,
-                    const Schedule& overnightLegSchedule,
-                    Spread spread,
-                    Real meanReversionSpeed,
-                    Real volatility,
-                    bool byApprox)
+        Type type,
+        const std::vector<Real>& nominals,
+        const Schedule& fixedLegSchedule,
+        Rate fixedRate,
+        const DayCounter& fixedDC,
+        const ext::shared_ptr<OvernightIndex>& overnightIndex,
+        const Schedule& overnightLegSchedule,
+        Spread spread,
+        Real meanReversionSpeed,
+        Real volatility,
+        bool byApprox)
     : Swap(2), type_(type), nominals_(nominals),
       fixedLegPaymentFrequency_(fixedLegSchedule.tenor().frequency()),
       overnightLegPaymentFrequency_(overnightLegSchedule.tenor().frequency()),
-      fixedRate_(fixedRate), fixedDC_(fixedDC),
-      overnightIndex_(overnightIndex),
-      spread_(spread), byApprox_(byApprox), mrs_(meanReversionSpeed),
-      vol_(volatility) {
+      fixedRate_(fixedRate), fixedDC_(fixedDC), overnightIndex_(overnightIndex), spread_(spread),
+      byApprox_(byApprox), mrs_(meanReversionSpeed), vol_(volatility) {
 
         initialize(fixedLegSchedule, overnightLegSchedule);
 
@@ -95,7 +93,7 @@ namespace QuantLib {
         }
 
         for (Size j=0; j<2; ++j) {
-            for (Leg::iterator i = legs_[j].begin(); i!= legs_[j].end(); ++i)
+            for (auto i = legs_[j].begin(); i != legs_[j].end(); ++i)
                 registerWith(*i);
         }
 

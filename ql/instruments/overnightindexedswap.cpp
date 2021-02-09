@@ -27,52 +27,46 @@
 namespace QuantLib {
 
     OvernightIndexedSwap::OvernightIndexedSwap(
-                    Type type,
-                    Real nominal,
-                    const Schedule& schedule,
-                    Rate fixedRate,
-                    const DayCounter& fixedDC,
-                    const ext::shared_ptr<OvernightIndex>& overnightIndex,
-                    Spread spread,
-                    Natural paymentLag,
-                    BusinessDayConvention paymentAdjustment,
-                    Calendar paymentCalendar,
-                    bool telescopicValueDates)
-    : Swap(2), type_(type),
-      nominals_(std::vector<Real>(1, nominal)),
+        Type type,
+        Real nominal,
+        const Schedule& schedule,
+        Rate fixedRate,
+        const DayCounter& fixedDC,
+        const ext::shared_ptr<OvernightIndex>& overnightIndex,
+        Spread spread,
+        Natural paymentLag,
+        BusinessDayConvention paymentAdjustment,
+        const Calendar& paymentCalendar,
+        bool telescopicValueDates)
+    : Swap(2), type_(type), nominals_(std::vector<Real>(1, nominal)),
       paymentFrequency_(schedule.tenor().frequency()),
       paymentCalendar_(paymentCalendar.empty() ? schedule.calendar() : paymentCalendar),
-      paymentAdjustment_(paymentAdjustment), paymentLag_(paymentLag),
-      fixedRate_(fixedRate), fixedDC_(fixedDC),
-      overnightIndex_(overnightIndex), spread_(spread),
+      paymentAdjustment_(paymentAdjustment), paymentLag_(paymentLag), fixedRate_(fixedRate),
+      fixedDC_(fixedDC), overnightIndex_(overnightIndex), spread_(spread),
       telescopicValueDates_(telescopicValueDates) {
 
-          initialize(schedule);
-
+        initialize(schedule);
     }
 
     OvernightIndexedSwap::OvernightIndexedSwap(
-                    Type type,
-                    std::vector<Real> nominals,
-                    const Schedule& schedule,
-                    Rate fixedRate,
-                    const DayCounter& fixedDC,
-                    const ext::shared_ptr<OvernightIndex>& overnightIndex,
-                    Spread spread,
-                    Natural paymentLag,
-                    BusinessDayConvention paymentAdjustment,
-                    Calendar paymentCalendar,
-                    bool telescopicValueDates)
-    : Swap(2), type_(type), nominals_(nominals),
-      paymentFrequency_(schedule.tenor().frequency()),
+        Type type,
+        const std::vector<Real>& nominals,
+        const Schedule& schedule,
+        Rate fixedRate,
+        const DayCounter& fixedDC,
+        const ext::shared_ptr<OvernightIndex>& overnightIndex,
+        Spread spread,
+        Natural paymentLag,
+        BusinessDayConvention paymentAdjustment,
+        const Calendar& paymentCalendar,
+        bool telescopicValueDates)
+    : Swap(2), type_(type), nominals_(nominals), paymentFrequency_(schedule.tenor().frequency()),
       paymentCalendar_(paymentCalendar.empty() ? schedule.calendar() : paymentCalendar),
-      paymentAdjustment_(paymentAdjustment), paymentLag_(paymentLag),
-      fixedRate_(fixedRate), fixedDC_(fixedDC),
-      overnightIndex_(overnightIndex), spread_(spread),
+      paymentAdjustment_(paymentAdjustment), paymentLag_(paymentLag), fixedRate_(fixedRate),
+      fixedDC_(fixedDC), overnightIndex_(overnightIndex), spread_(spread),
       telescopicValueDates_(telescopicValueDates) {
 
-          initialize(schedule);
-
+        initialize(schedule);
     }
 
     void OvernightIndexedSwap::initialize(const Schedule& schedule) {
@@ -94,7 +88,7 @@ namespace QuantLib {
             .withPaymentCalendar(paymentCalendar_);
 
         for (Size j=0; j<2; ++j) {
-            for (Leg::iterator i = legs_[j].begin(); i!= legs_[j].end(); ++i)
+            for (auto i = legs_[j].begin(); i != legs_[j].end(); ++i)
                 registerWith(*i);
         }
 

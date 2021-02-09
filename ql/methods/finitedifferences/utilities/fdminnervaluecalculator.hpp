@@ -29,8 +29,7 @@
 #include <ql/types.hpp>
 #include <ql/shared_ptr.hpp>
 #include <ql/math/functional.hpp>
-
-#include <boost/function.hpp>
+#include <ql/functional.hpp>
 #include <vector>
 
 
@@ -57,10 +56,10 @@ namespace QuantLib {
             const ext::shared_ptr<Payoff>& payoff,
             const ext::shared_ptr<FdmMesher>& mesher,
             Size direction,
-            const boost::function<Real(Real)>& gridMapping = identity<Real>());
+            const ext::function<Real(Real)>& gridMapping = identity<Real>());
 
-        Real innerValue(const FdmLinearOpIterator& iter, Time);
-        Real avgInnerValue(const FdmLinearOpIterator& iter, Time t);
+        Real innerValue(const FdmLinearOpIterator& iter, Time) override;
+        Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) override;
 
       private:
         Real avgInnerValueCalc(const FdmLinearOpIterator& iter, Time t);
@@ -68,7 +67,7 @@ namespace QuantLib {
         const ext::shared_ptr<Payoff> payoff_;
         const ext::shared_ptr<FdmMesher> mesher_;
         const Size direction_;
-        const boost::function<Real(Real)> gridMapping_;
+        const ext::function<Real(Real)> gridMapping_;
 
         std::vector<Real> avgInnerValues_;
     };
@@ -85,8 +84,8 @@ namespace QuantLib {
         FdmLogBasketInnerValue(const ext::shared_ptr<BasketPayoff>& payoff,
                                const ext::shared_ptr<FdmMesher>& mesher);
 
-        Real innerValue(const FdmLinearOpIterator& iter, Time);
-        Real avgInnerValue(const FdmLinearOpIterator& iter, Time);
+        Real innerValue(const FdmLinearOpIterator& iter, Time) override;
+        Real avgInnerValue(const FdmLinearOpIterator& iter, Time) override;
 
       private:
         const ext::shared_ptr<BasketPayoff> payoff_;
@@ -95,8 +94,8 @@ namespace QuantLib {
 
     class FdmZeroInnerValue : public FdmInnerValueCalculator {
       public:
-        Real innerValue(const FdmLinearOpIterator&, Time)    { return 0.0; }
-        Real avgInnerValue(const FdmLinearOpIterator&, Time) { return 0.0; }
+        Real innerValue(const FdmLinearOpIterator&, Time) override { return 0.0; }
+        Real avgInnerValue(const FdmLinearOpIterator&, Time) override { return 0.0; }
     };
 }
 

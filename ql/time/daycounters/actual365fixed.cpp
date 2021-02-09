@@ -2,6 +2,7 @@
 
 /*
  Copyright (C) 2000, 2001, 2002, 2003 RiskMap srl
+ Copyright (C) 2013 BGC Partners L.P.
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -18,6 +19,7 @@
 */
 
 #include <ql/time/daycounters/actual365fixed.hpp>
+#include <cmath>
 
 namespace QuantLib {
 
@@ -48,13 +50,13 @@ namespace QuantLib {
 
         Time dcs = daysBetween(d1,d2);
         Time dcc = daysBetween(refPeriodStart,refPeriodEnd);
-        Integer months = Integer(0.5+12*dcc/365);
+        auto months = Integer(std::lround(12 * dcc / 365));
         QL_REQUIRE(months != 0,
                    "invalid reference period for Act/365 Canadian; "
                    "must be longer than a month");
-        Integer frequency = Integer(12/months);
+        auto frequency = Integer(12 / months);
 
-        if (dcs < 365/frequency)
+        if (dcs < Integer(365/frequency))
             return dcs/365.0;
 
         return 1./frequency - (dcc-dcs)/365.0;

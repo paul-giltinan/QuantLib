@@ -53,6 +53,7 @@ using namespace boost::unit_test_framework;
 
 using std::sqrt;
 
+#undef REPORT_FAILURE
 #define REPORT_FAILURE(greekName, barrierType, barrier, rebate, payoff, \
                        exercise, s, q, r, today, v, expected, calculated, \
                        error, tolerance) \
@@ -74,6 +75,7 @@ using std::sqrt;
                << "    error:            " << error << "\n" \
                << "    tolerance:        " << tolerance);
 
+#undef REPORT_FX_FAILURE
 #define REPORT_FX_FAILURE(greekName, barrierType, barrier, \
                           rebate, payoff, exercise, s, q, r, today, \
                           vol25Put, atmVol, vol25Call, v, \
@@ -100,7 +102,7 @@ using std::sqrt;
                << "    tolerance:        " << tolerance);
 
 
-namespace {
+namespace barrier_option_test {
 
     std::string barrierTypeToString(Barrier::Type type) {
         switch(type){
@@ -241,6 +243,8 @@ void BarrierOptionTest::testParity() {
 void BarrierOptionTest::testHaugValues() {
 
     BOOST_TEST_MESSAGE("Testing barrier options against Haug's values...");
+
+    using namespace barrier_option_test;
 
     Exercise::Type european = Exercise::European;
     Exercise::Type american = Exercise::American;
@@ -387,7 +391,7 @@ void BarrierOptionTest::testHaugValues() {
     ext::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
 
         spot ->setValue(values[i].s);
         qRate->setValue(values[i].q);
@@ -488,6 +492,8 @@ void BarrierOptionTest::testHaugValues() {
 void BarrierOptionTest::testBabsiriValues() {
 
     BOOST_TEST_MESSAGE("Testing barrier options against Babsiri's values...");
+
+    using namespace barrier_option_test;
 
     /*
         Data from
@@ -598,6 +604,7 @@ void BarrierOptionTest::testBeagleholeValues() {
 
     BOOST_TEST_MESSAGE("Testing barrier options against Beaglehole's values...");
 
+    using namespace barrier_option_test;
 
     /*
         Data from
@@ -929,6 +936,8 @@ void BarrierOptionTest::testLocalVolAndHestonComparison() {
 void BarrierOptionTest::testVannaVolgaSimpleBarrierValues() {
     BOOST_TEST_MESSAGE("Testing barrier FX options against Vanna/Volga values...");
 
+    using namespace barrier_option_test;
+
     SavedSettings backup;
 
     BarrierFxOptionData values[] = {
@@ -1104,9 +1113,9 @@ void BarrierOptionTest::testVannaVolgaSimpleBarrierValues() {
 
         ext::shared_ptr<StrikedTypePayoff> payoff =
             ext::make_shared<PlainVanillaPayoff>(values[i].type,
-                                                   values[i].strike);
+                                                 values[i].strike);
 
-        Date exDate = today + Integer(values[i].t*365+0.5);
+        Date exDate = today + timeToDays(values[i].t, 365);
         ext::shared_ptr<Exercise> exercise =
             ext::make_shared<EuropeanExercise>(exDate);
 
@@ -1204,6 +1213,10 @@ void BarrierOptionTest::testDividendBarrierOption() {
         ext::make_shared<FdBlackScholesBarrierEngine>(
             bsProcess, 100, 100, 0, FdmSchemeDesc::Douglas());
 
+    const ext::shared_ptr<PricingEngine> crankNicolson =
+        ext::make_shared<FdBlackScholesBarrierEngine>(
+            bsProcess, 100, 100, 0, FdmSchemeDesc::CrankNicolson());
+
     const ext::shared_ptr<PricingEngine> craigSnyed =
         ext::make_shared<FdBlackScholesBarrierEngine>(
             bsProcess, 100, 100, 0, FdmSchemeDesc::CraigSneyd());
@@ -1227,7 +1240,8 @@ void BarrierOptionTest::testDividendBarrierOption() {
                     rTS, qTS, s0, v*v, 1.0, v*v, 0.005, 0.0)), 50, 101, 3);
 
     const ext::shared_ptr<PricingEngine> engines[] = {
-        douglas, trPDF2, craigSnyed, hundsdorfer, mol, hestonEngine
+        douglas, crankNicolson,
+        trPDF2, craigSnyed, hundsdorfer, mol, hestonEngine
     };
 
     const ext::shared_ptr<StrikedTypePayoff> payoff =
@@ -1279,7 +1293,7 @@ void BarrierOptionTest::testDividendBarrierOption() {
 }
 
 test_suite* BarrierOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Barrier option tests");
+    auto* suite = BOOST_TEST_SUITE("Barrier option tests");
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testParity));
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testHaugValues));
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testBabsiriValues));
@@ -1292,7 +1306,7 @@ test_suite* BarrierOptionTest::suite() {
 }
 
 test_suite* BarrierOptionTest::experimental() {
-    test_suite* suite = BOOST_TEST_SUITE("Barrier option experimental tests");
+    auto* suite = BOOST_TEST_SUITE("Barrier option experimental tests");
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testPerturbative));
     suite->add(QUANTLIB_TEST_CASE(
                       &BarrierOptionTest::testVannaVolgaSimpleBarrierValues));

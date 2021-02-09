@@ -282,9 +282,9 @@ Real ZabrModel::fullFdPrice(const Real strike) const {
         Real f = mesher->location(iter, 0);
         // Real v = mesher->location(iter, 0);
         rhs[iter.index()] = std::max(f - strike, 0.0);
-        if (!iter.coordinates()[1])
+        if (iter.coordinates()[1] == 0U)
             f_.push_back(mesher->location(iter, 0));
-        if (!iter.coordinates()[0])
+        if (iter.coordinates()[0] == 0U)
             v_.push_back(mesher->location(iter, 1));
     }
 
@@ -322,8 +322,7 @@ ZabrModel::x(const std::vector<Real> &strikes) const {
 
     QL_REQUIRE(strikes[0] > 0.0 || beta_ < 1.0,
                "strikes must be positive (" << strikes[0] << ") if beta = 1");
-    for (std::vector<Real>::const_iterator i = strikes.begin() + 1;
-         i != strikes.end(); ++i)
+    for (auto i = strikes.begin() + 1; i != strikes.end(); ++i)
         QL_REQUIRE(*i > *(i - 1), "strikes must be strictly ascending ("
                                       << *(i - 1) << "," << *i << ")");
 

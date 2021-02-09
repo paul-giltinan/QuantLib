@@ -31,12 +31,12 @@
 #include <ql/termstructures/yield/flatforward.hpp>
 #include <ql/termstructures/volatility/equityfx/blackconstantvol.hpp>
 #include <ql/utilities/dataformatters.hpp>
-#include <boost/progress.hpp>
 #include <map>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
+#undef REPORT_FAILURE
 #define REPORT_FAILURE(greekName, payoff, exercise, s, q, r, today, \
                        v, expected, calculated, error, tolerance, knockin) \
     BOOST_FAIL(exerciseTypeToString(exercise) << " " \
@@ -99,7 +99,7 @@ void DigitalOptionTest::testCashOrNothingEuropeanValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 10.0));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -154,7 +154,7 @@ void DigitalOptionTest::testAssetOrNothingEuropeanValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -209,7 +209,7 @@ void DigitalOptionTest::testGapEuropeanValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new GapPayoff(
             values[i].type, values[i].strike, 57.00));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -276,7 +276,7 @@ void DigitalOptionTest::testCashAtHitOrNothingAmericanValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 15.00));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate));
 
@@ -342,7 +342,7 @@ void DigitalOptionTest::testAssetAtHitOrNothingAmericanValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate));
 
@@ -407,7 +407,7 @@ void DigitalOptionTest::testCashAtExpiryOrNothingAmericanValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 15.0));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate,
                                                                     true));
@@ -480,7 +480,7 @@ void DigitalOptionTest::testAssetAtExpiryOrNothingAmericanValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate,
                                                                     true));
@@ -689,8 +689,6 @@ void DigitalOptionTest::testMCCashAtHit() {
 
     SavedSettings backup;
 
-    QL_TEST_START_TIMING
-
     DigitalOptionData values[] = {
         //        type, strike,   spot,    q,    r,   t,  vol,   value, tol
         { Option::Put,  100.00, 105.00, 0.20, 0.10, 0.5, 0.20, 12.2715, 1e-2, true },
@@ -716,8 +714,7 @@ void DigitalOptionTest::testMCCashAtHit() {
 
         ext::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 15.0));
-        //FLOATING_POINT_EXCEPTION
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> amExercise(
                                          new AmericanExercise(today, exDate));
 
@@ -756,7 +753,7 @@ void DigitalOptionTest::testMCCashAtHit() {
 
 
 test_suite* DigitalOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Digital option tests");
+    auto* suite = BOOST_TEST_SUITE("Digital option tests");
     suite->add(QUANTLIB_TEST_CASE(
                &DigitalOptionTest::testCashOrNothingEuropeanValues));
     suite->add(QUANTLIB_TEST_CASE(

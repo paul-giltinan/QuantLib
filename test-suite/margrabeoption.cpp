@@ -29,6 +29,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
+#undef REPORT_FAILURE
 #define REPORT_FAILURE(greekName, exercise, \
                        s1, s2, Q1, Q2, q1, q2, r, today, v1, v2, rho,   \
                        expected, calculated, error, tolerance)          \
@@ -53,6 +54,7 @@ using namespace boost::unit_test_framework;
         << "    error:            " << error << "\n" \
         << "    tolerance:        " << tolerance);
 
+#undef REPORT_FAILURE2
 #define REPORT_FAILURE2(greekName, exercise, s1, s2, q1, q2, r, today, \
                        v1, v2, expected, calculated, error, tolerance) \
     BOOST_ERROR(exerciseTypeToString(exercise) << " " \
@@ -113,10 +115,6 @@ namespace {
         Real tol;
     };
 
-    Integer timeToDays(Time t) {
-        // FLOATING_POINT_EXCEPTION
-        return Integer(t*360+0.5);
-    }
 }
 
 void MargrabeOptionTest::testEuroExchangeTwoAssets() {
@@ -182,7 +180,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
     for (Size i=0; i<LENGTH(values); i++) {
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot1 ->setValue(values[i].s1);
@@ -543,7 +541,7 @@ void MargrabeOptionTest::testAmericanExchangeTwoAssets() {
 
     for (Size i=0; i<LENGTH(values); i++) {
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> exercise(new AmericanExercise(today, exDate));
 
         spot1 ->setValue(values[i].s1);
@@ -601,7 +599,7 @@ void MargrabeOptionTest::testAmericanExchangeTwoAssets() {
 }
 
 test_suite* MargrabeOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Exchange option tests");
+    auto* suite = BOOST_TEST_SUITE("Exchange option tests");
     suite->add(
         QUANTLIB_TEST_CASE(&MargrabeOptionTest::testEuroExchangeTwoAssets));
     suite->add(

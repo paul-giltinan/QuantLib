@@ -2,7 +2,7 @@
 
 /*
  Copyright (C) 2006, 2014 Ferdinando Ametrano
- Copyright (C) 2006 François du Vignaud
+ Copyright (C) 2006 FranÃ§ois du Vignaud
  Copyright (C) 2001, 2002, 2003 Sadruddin Rejeb
  Copyright (C) 2006, 2007 StatPro Italia srl
  Copyright (C) 2016 Paolo Mazzocchi
@@ -57,11 +57,11 @@ namespace QuantLib {
                               Real targetValue,
                               Real displacement,
                               VolatilityType type)
-        : discountCurve_(discountCurve), targetValue_(targetValue) {
+        : discountCurve_(discountCurve), targetValue_(targetValue),
+          vol_(ext::make_shared<SimpleQuote>(-1.0)) {
 
-            // set an implausible value, so that calculation is forced
+            // vol_ is set an implausible value, so that calculation is forced
             // at first ImpliedCapVolHelper::operator()(Volatility x) call
-            vol_ = ext::make_shared<SimpleQuote>(-1);
             Handle<Quote> h(vol_);
 
             switch (type) {
@@ -99,8 +99,7 @@ namespace QuantLib {
                 vol_->setValue(x);
                 engine_->calculate();
             }
-            std::map<std::string,boost::any>::const_iterator vega_ =
-                results_->additionalResults.find("vega");
+            auto vega_ = results_->additionalResults.find("vega");
             QL_REQUIRE(vega_ != results_->additionalResults.end(),
                        "vega not provided");
             return boost::any_cast<Real>(vega_->second);
@@ -210,9 +209,8 @@ namespace QuantLib {
     }
 
     void CapFloor::setupArguments(PricingEngine::arguments* args) const {
-        CapFloor::arguments* arguments =
-            dynamic_cast<CapFloor::arguments*>(args);
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        auto* arguments = dynamic_cast<CapFloor::arguments*>(args);
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
 
         Size n = floatingLeg_.size();
 
@@ -276,7 +274,7 @@ namespace QuantLib {
             ext::shared_ptr<LazyObject> f =
                 ext::dynamic_pointer_cast<LazyObject>(
                     floatingLeg_[i]);
-            if (f)
+            if (f != nullptr)
                 f->update();
         }
         update();

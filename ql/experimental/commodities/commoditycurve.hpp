@@ -61,7 +61,7 @@ namespace QuantLib {
         const CommodityType& commodityType() const;
         const UnitOfMeasure& unitOfMeasure() const;
         const Currency& currency() const;
-        Date maxDate() const;
+        Date maxDate() const override;
         const std::vector<Time>& times() const;
         const std::vector<Date>& dates() const;
         const std::vector<Real>& prices() const;
@@ -191,7 +191,7 @@ namespace QuantLib {
     }
 
     inline Real CommodityCurve::basisOfPriceImpl(Time t) const {
-        if (basisOfCurve_ != 0) {
+        if (basisOfCurve_ != nullptr) {
             Real basisCurvePriceValue = 0;
             try {
                 basisCurvePriceValue =

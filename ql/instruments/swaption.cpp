@@ -56,11 +56,12 @@ namespace QuantLib {
                               Real targetValue,
                               Real displacement,
                               VolatilityType type)
-        : discountCurve_(discountCurve), targetValue_(targetValue) {
+        : discountCurve_(discountCurve), targetValue_(targetValue),
+          vol_(ext::make_shared<SimpleQuote>(-1.0)) {
 
-            // set an implausible value, so that calculation is forced
+            // vol_ is set an implausible value, so that calculation is forced
             // at first ImpliedSwaptionVolHelper::operator()(Volatility x) call
-            vol_ = ext::make_shared<SimpleQuote>(-1.0);
+
             Handle<Quote> h(vol_);
 
             switch (type) {
@@ -94,8 +95,7 @@ namespace QuantLib {
                 vol_->setValue(x);
                 engine_->calculate();
             }
-            std::map<std::string,boost::any>::const_iterator vega_ =
-                results_->additionalResults.find("vega");
+            auto vega_ = results_->additionalResults.find("vega");
             QL_REQUIRE(vega_ != results_->additionalResults.end(),
                        "vega not provided");
             return boost::any_cast<Real>(vega_->second);
@@ -147,10 +147,9 @@ namespace QuantLib {
 
         swap_->setupArguments(args);
 
-        Swaption::arguments* arguments =
-            dynamic_cast<Swaption::arguments*>(args);
+        auto* arguments = dynamic_cast<Swaption::arguments*>(args);
 
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
 
         arguments->swap = swap_;
         arguments->settlementType = settlementType_;

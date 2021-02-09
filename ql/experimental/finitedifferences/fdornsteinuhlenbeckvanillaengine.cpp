@@ -41,12 +41,12 @@ namespace QuantLib {
           : payoff_(payoff), mesher_(mesher), direction_ (direction) { }
 
 
-            Real innerValue(const FdmLinearOpIterator& iter, Time t) {
+            Real innerValue(const FdmLinearOpIterator& iter, Time t) override {
                 const Real s = mesher_->location(iter, direction_);
                 return (*payoff_)(s);
             }
 
-            Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) {
+            Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) override {
                 return innerValue(iter, t);
             }
 
@@ -109,8 +109,8 @@ namespace QuantLib {
         FdmSolverDesc solverDesc = { mesher, boundaries, conditions, calculator,
                                      maturity, tGrid_, dampingSteps_ };
 
-        const ext::shared_ptr<FdmOrnsteinUhlenbackOp> op(
-            new FdmOrnsteinUhlenbackOp(mesher, process_, rTS_, 0));
+        const ext::shared_ptr<FdmOrnsteinUhlenbeckOp> op(
+            new FdmOrnsteinUhlenbeckOp(mesher, process_, rTS_, 0));
 
         const ext::shared_ptr<Fdm1DimSolver> solver(
                 new Fdm1DimSolver(solverDesc, schemeDesc_, op));

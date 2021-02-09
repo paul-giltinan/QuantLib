@@ -27,16 +27,17 @@
 #include <ql/cashflow.hpp>
 #include <ql/money.hpp>
 #include <map>
+#include <utility>
 
 namespace QuantLib {
 
     class CommodityCashFlow : public CashFlow {
       public:
         CommodityCashFlow(const Date& date,
-                          Money discountedAmount,
-                          Money undiscountedAmount,
-                          Money discountedPaymentAmount,
-                          Money undiscountedPaymentAmount,
+                          const Money& discountedAmount,
+                          const Money& undiscountedAmount,
+                          const Money& discountedPaymentAmount,
+                          const Money& undiscountedPaymentAmount,
                           Real discountFactor,
                           Real paymentDiscountFactor,
                           bool finalized)
@@ -44,16 +45,15 @@ namespace QuantLib {
           undiscountedAmount_(undiscountedAmount),
           discountedPaymentAmount_(discountedPaymentAmount),
           undiscountedPaymentAmount_(undiscountedPaymentAmount),
-          discountFactor_(discountFactor),
-          paymentDiscountFactor_(paymentDiscountFactor),
+          discountFactor_(discountFactor), paymentDiscountFactor_(paymentDiscountFactor),
           finalized_(finalized) {}
         //! \name Event interface
         //@{
-        Date date() const { return date_; }
+        Date date() const override { return date_; }
         //@}
         //! \name CashFlow interface
         //@{
-        Real amount() const { return discountedAmount_.value(); }
+        Real amount() const override { return discountedAmount_.value(); }
         //@}
         const Currency& currency() const {
             return discountedAmount_.currency();
@@ -73,7 +73,7 @@ namespace QuantLib {
 
         //! \name Visitability
         //@{
-        virtual void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
       private:
         Date date_;

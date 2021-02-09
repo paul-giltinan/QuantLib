@@ -32,9 +32,8 @@ namespace QuantLib {
     void CompoundOption::setupArguments(PricingEngine::arguments* args) const {
         OneAssetOption::setupArguments(args);
 
-        CompoundOption::arguments* moreArgs =
-            dynamic_cast<CompoundOption::arguments*>(args);
-        QL_REQUIRE(moreArgs != 0, "wrong argument type");
+        auto* moreArgs = dynamic_cast<CompoundOption::arguments*>(args);
+        QL_REQUIRE(moreArgs != nullptr, "wrong argument type");
         moreArgs->daughterPayoff = daughterPayoff_;
         moreArgs->daughterExercise = daughterExercise_;
     }

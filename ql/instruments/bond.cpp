@@ -127,9 +127,7 @@ namespace QuantLib {
         // date, since the first is null.  After the call to
         // lower_bound, *i is the earliest date which is greater or
         // equal than d.  Its index is greater or equal to 1.
-        std::vector<Date>::const_iterator i =
-            std::lower_bound(notionalSchedule_.begin()+1,
-                             notionalSchedule_.end(), d);
+        auto i = std::lower_bound(notionalSchedule_.begin() + 1, notionalSchedule_.end(), d);
         Size index = std::distance(notionalSchedule_.begin(), i);
 
         if (d < notionalSchedule_[index]) {
@@ -205,14 +203,19 @@ namespace QuantLib {
                      Compounding comp,
                      Frequency freq,
                      Real accuracy,
-                     Size maxEvaluations) const {
+                     Size maxEvaluations,
+                     Real guess,
+                     Bond::Price::Type priceType) const {
         Real currentNotional = notional(settlementDate());
         if (currentNotional == 0.0)
             return 0.0;
 
-        return BondFunctions::yield(*this, cleanPrice(), dc, comp, freq,
+        Real price = priceType == Bond::Price::Clean ? cleanPrice() : dirtyPrice();
+
+        return BondFunctions::yield(*this, price, dc, comp, freq,
                                     settlementDate(),
-                                    accuracy, maxEvaluations);
+                                    accuracy, maxEvaluations,
+                                    guess, priceType);
     }
 
     Real Bond::cleanPrice(Rate y,
@@ -236,19 +239,22 @@ namespace QuantLib {
             + accruedAmount(settlement);
     }
 
-    Rate Bond::yield(Real cleanPrice,
+    Rate Bond::yield(Real price,
                      const DayCounter& dc,
                      Compounding comp,
                      Frequency freq,
                      Date settlement,
                      Real accuracy,
-                     Size maxEvaluations) const {
+                     Size maxEvaluations,
+                     Real guess,
+                     Bond::Price::Type priceType) const {
         Real currentNotional = notional(settlement);
         if (currentNotional == 0.0)
             return 0.0;
 
-        return BondFunctions::yield(*this, cleanPrice, dc, comp, freq,
-                                    settlement, accuracy, maxEvaluations);
+        return BondFunctions::yield(*this, price, dc, comp, freq,
+                                    settlement, accuracy, maxEvaluations,
+                                    guess, priceType);
     }
 
     Real Bond::accruedAmount(Date settlement) const {
@@ -281,8 +287,8 @@ namespace QuantLib {
     }
 
     void Bond::setupArguments(PricingEngine::arguments* args) const {
-        Bond::arguments* arguments = dynamic_cast<Bond::arguments*>(args);
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        auto* arguments = dynamic_cast<Bond::arguments*>(args);
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
 
         arguments->settlementDate = settlementDate();
         arguments->cashflows = cashflows_;
@@ -293,9 +299,8 @@ namespace QuantLib {
 
         Instrument::fetchResults(r);
 
-        const Bond::results* results =
-            dynamic_cast<const Bond::results*>(r);
-        QL_ENSURE(results != 0, "wrong result type");
+        const auto* results = dynamic_cast<const Bond::results*>(r);
+        QL_ENSURE(results != nullptr, "wrong result type");
 
         settlementValue_ = results->settlementValue;
     }
@@ -356,7 +361,7 @@ namespace QuantLib {
         for (Size k = 0; k < cashflows_.size(); ++k) {
             ext::shared_ptr<LazyObject> f =
                 ext::dynamic_pointer_cast<LazyObject>(cashflows_[k]);
-            if (f)
+            if (f != nullptr)
                 f->update();
         }
         update();

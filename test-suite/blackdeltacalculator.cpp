@@ -34,12 +34,7 @@ using namespace boost::unit_test_framework;
 
 using std::sqrt;
 
-namespace {
-
-    Integer timeToDays(Time t) {
-        // FLOATING_POINT_EXCEPTION
-        return Integer(t*360+0.5);
-    }
+namespace black_delta_calculator_test {
 
     struct DeltaData {
         Option::Type ot;
@@ -70,6 +65,8 @@ namespace {
 void BlackDeltaCalculatorTest::testDeltaValues(){
 
     BOOST_TEST_MESSAGE("Testing delta calculator values...");
+
+    using namespace black_delta_calculator_test;
 
     DeltaData values[] = {
         // Values taken from parallel implementation in R
@@ -153,6 +150,8 @@ void BlackDeltaCalculatorTest::testDeltaValues(){
 void BlackDeltaCalculatorTest::testDeltaPriceConsistency() {
 
     BOOST_TEST_MESSAGE("Testing premium-adjusted delta price consistency...");
+
+    using namespace black_delta_calculator_test;
 
     // This function tests for price consistencies with the standard
     // Black Scholes calculator, since premium adjusted deltas can be calculated
@@ -319,6 +318,8 @@ void BlackDeltaCalculatorTest::testDeltaPriceConsistency() {
 void BlackDeltaCalculatorTest::testPutCallParity(){
 
     BOOST_TEST_MESSAGE("Testing put-call parity for deltas...");
+
+    using namespace black_delta_calculator_test;
 
     // Test for put call parity between put and call deltas.
 
@@ -517,6 +518,8 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
 
     BOOST_TEST_MESSAGE("Testing delta-neutral ATM quotations...");
 
+    using namespace black_delta_calculator_test;
+
     SavedSettings backup;
 
     DeltaData values[] = {
@@ -679,7 +682,7 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
 
 
 test_suite* BlackDeltaCalculatorTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Black delta calculator tests");
+    auto* suite = BOOST_TEST_SUITE("Black delta calculator tests");
     suite->add(QUANTLIB_TEST_CASE(&BlackDeltaCalculatorTest::testDeltaValues));
     suite->add(QUANTLIB_TEST_CASE(
                        &BlackDeltaCalculatorTest::testDeltaPriceConsistency));

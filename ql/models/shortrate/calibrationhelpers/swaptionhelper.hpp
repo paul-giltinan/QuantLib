@@ -43,12 +43,12 @@ namespace QuantLib {
                        const DayCounter& fixedLegDayCounter,
                        const DayCounter& floatingLegDayCounter,
                        const Handle<YieldTermStructure>& termStructure,
-                       BlackCalibrationHelper::CalibrationErrorType errorType
-                                      = BlackCalibrationHelper::RelativePriceError,
-                       const Real strike = Null<Real>(),
-                       const Real nominal = 1.0,
-                       const VolatilityType type = ShiftedLognormal,
-                       const Real shift = 0.0);
+                       BlackCalibrationHelper::CalibrationErrorType errorType =
+                           BlackCalibrationHelper::RelativePriceError,
+                       Real strike = Null<Real>(),
+                       Real nominal = 1.0,
+                       VolatilityType type = ShiftedLognormal,
+                       Real shift = 0.0);
 
         SwaptionHelper(const Date& exerciseDate,
                        const Period& length,
@@ -58,12 +58,12 @@ namespace QuantLib {
                        const DayCounter& fixedLegDayCounter,
                        const DayCounter& floatingLegDayCounter,
                        const Handle<YieldTermStructure>& termStructure,
-                       BlackCalibrationHelper::CalibrationErrorType errorType
-                                      = BlackCalibrationHelper::RelativePriceError,
-                       const Real strike = Null<Real>(),
-                       const Real nominal = 1.0,
-                       const VolatilityType type = ShiftedLognormal,
-                       const Real shift = 0.0);
+                       BlackCalibrationHelper::CalibrationErrorType errorType =
+                           BlackCalibrationHelper::RelativePriceError,
+                       Real strike = Null<Real>(),
+                       Real nominal = 1.0,
+                       VolatilityType type = ShiftedLognormal,
+                       Real shift = 0.0);
 
         SwaptionHelper(const Date& exerciseDate,
                        const Date& endDate,
@@ -73,25 +73,26 @@ namespace QuantLib {
                        const DayCounter& fixedLegDayCounter,
                        const DayCounter& floatingLegDayCounter,
                        const Handle<YieldTermStructure>& termStructure,
-                       BlackCalibrationHelper::CalibrationErrorType errorType
-                                      = BlackCalibrationHelper::RelativePriceError,
-                       const Real strike = Null<Real>(),
-                       const Real nominal = 1.0,
-                       const VolatilityType type = ShiftedLognormal,
-                       const Real shift = 0.0);
+                       BlackCalibrationHelper::CalibrationErrorType errorType =
+                           BlackCalibrationHelper::RelativePriceError,
+                       Real strike = Null<Real>(),
+                       Real nominal = 1.0,
+                       VolatilityType type = ShiftedLognormal,
+                       Real shift = 0.0);
 
-        virtual void addTimesTo(std::list<Time>& times) const;
-        virtual Real modelValue() const;
-        virtual Real blackPrice(Volatility volatility) const;
+        void addTimesTo(std::list<Time>& times) const override;
+        Real modelValue() const override;
+        Real blackPrice(Volatility volatility) const override;
 
         ext::shared_ptr<VanillaSwap> underlyingSwap() const { calculate(); return swap_; }
         ext::shared_ptr<Swaption> swaption() const { calculate(); return swaption_; }
 
       private:
-        void performCalculations() const;
+        void performCalculations() const override;
         mutable Date exerciseDate_, endDate_;
         const Period maturity_, length_, fixedLegTenor_;
         const ext::shared_ptr<IborIndex> index_;
+        const Handle<YieldTermStructure> termStructure_;
         const DayCounter fixedLegDayCounter_, floatingLegDayCounter_;
         const Real strike_, nominal_;
         mutable Rate exerciseRate_;

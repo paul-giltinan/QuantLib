@@ -30,6 +30,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <cmath>
 
 namespace QuantLib {
 
@@ -59,9 +60,8 @@ namespace QuantLib {
             // (even though I'm not sure that I agree.)
             QL_REQUIRE(mandatoryTimes_.front() >= 0.0,
                        "negative times not allowed");
-            std::vector<Time>::iterator e =
-                std::unique(mandatoryTimes_.begin(),mandatoryTimes_.end(),
-                            static_cast<bool (*)(Real, Real)>(close_enough));
+            auto e = std::unique(mandatoryTimes_.begin(), mandatoryTimes_.end(),
+                                 static_cast<bool (*)(Real, Real)>(close_enough));
             mandatoryTimes_.resize(e - mandatoryTimes_.begin());
 
             if (mandatoryTimes_[0] > 0.0)
@@ -91,9 +91,8 @@ namespace QuantLib {
             // (even though I'm not sure that I agree.)
             QL_REQUIRE(mandatoryTimes_.front() >= 0.0,
                        "negative times not allowed");
-            std::vector<Time>::iterator e =
-                std::unique(mandatoryTimes_.begin(),mandatoryTimes_.end(),
-                            static_cast<bool (*)(Real, Real)>(close_enough));
+            auto e = std::unique(mandatoryTimes_.begin(), mandatoryTimes_.end(),
+                                 static_cast<bool (*)(Real, Real)>(close_enough));
             mandatoryTimes_.resize(e - mandatoryTimes_.begin());
 
             Time last = mandatoryTimes_.back();
@@ -120,12 +119,9 @@ namespace QuantLib {
                                                    ++t) {
                 Time periodEnd = *t;
                 if (periodEnd != 0.0) {
-                    // the nearest integer
-                    Size nSteps = Size((periodEnd - periodBegin)/dtMax+0.5);
-                    // at least one time step!
-                    nSteps = (nSteps!=0 ? nSteps : 1);
+                    // the nearest integer, at least 1
+                    Size nSteps = std::max(Size(std::lround((periodEnd - periodBegin)/dtMax)), Size(1));
                     Time dt = (periodEnd - periodBegin)/nSteps;
-                    times_.reserve(nSteps);
                     for (Size n=1; n<=nSteps; ++n)
                         times_.push_back(periodBegin + n*dt);
                 }

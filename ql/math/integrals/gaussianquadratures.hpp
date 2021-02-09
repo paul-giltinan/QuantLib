@@ -89,7 +89,7 @@ namespace QuantLib {
     */
     class GaussLaguerreIntegration : public GaussianQuadrature {
       public:
-        GaussLaguerreIntegration(Size n, Real s = 0.0)
+        explicit GaussLaguerreIntegration(Size n, Real s = 0.0)
         : GaussianQuadrature(n, GaussLaguerrePolynomial(s)) {}
     };
 
@@ -106,7 +106,7 @@ namespace QuantLib {
     */
     class GaussHermiteIntegration : public GaussianQuadrature {
       public:
-        GaussHermiteIntegration(Size n, Real mu = 0.0)
+        explicit GaussHermiteIntegration(Size n, Real mu = 0.0)
         : GaussianQuadrature(n, GaussHermitePolynomial(mu)) {}
     };
 
@@ -214,8 +214,8 @@ namespace QuantLib {
         explicit TabulatedGaussLegendre(Size n = 20) { order(n); }
         template <class F>
         Real operator() (const F& f) const {
-            QL_ASSERT(w_!=0, "Null weights" );
-            QL_ASSERT(x_!=0, "Null abscissas");
+            QL_ASSERT(w_ != nullptr, "Null weights");
+            QL_ASSERT(x_ != nullptr, "Null abscissas");
             Size startIdx;
             Real val;
 

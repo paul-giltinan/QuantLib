@@ -38,20 +38,6 @@ namespace QuantLib {
       nominal_(1000000.0)
      {}
 
-    MakeYoYInflationCapFloor::MakeYoYInflationCapFloor(
-                                YoYInflationCapFloor::Type capFloorType,
-                                const Size& length, const Calendar& cal,
-                                const ext::shared_ptr<YoYInflationIndex>& index,
-                                const Period& observationLag, Rate strike,
-                                const Period& forwardStart)
-    : capFloorType_(capFloorType), length_(length),
-      calendar_(cal), index_(index), observationLag_(observationLag),
-      strike_(strike), firstCapletExcluded_(false),
-      asOptionlet_(false), effectiveDate_(Date()), forwardStart_(forwardStart),
-      dayCounter_(Thirty360()), roll_(ModifiedFollowing), fixingDays_(0),
-      nominal_(1000000.0)
-     {}
-
     MakeYoYInflationCapFloor::operator YoYInflationCapFloor() const {
         ext::shared_ptr<YoYInflationCapFloor> capfloor = *this;
         return *capfloor;
@@ -85,7 +71,7 @@ namespace QuantLib {
 
         // only leaves the last coupon
         if (asOptionlet_ && leg.size() > 1) {
-            Leg::iterator end = leg.end();  // Sun Studio needs an lvalue
+            auto end = leg.end(); // Sun Studio needs an lvalue
             leg.erase(leg.begin(), --end);
         }
 

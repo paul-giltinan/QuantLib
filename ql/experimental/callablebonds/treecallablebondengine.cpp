@@ -50,25 +50,20 @@ namespace QuantLib {
     void TreeCallableFixedRateBondEngine::calculateWithSpread(Spread s) const {
         QL_REQUIRE(!model_.empty(), "no model specified");
 
-        Date referenceDate;
-        DayCounter dayCounter;
-
         ext::shared_ptr<TermStructureConsistentModel> tsmodel =
             ext::dynamic_pointer_cast<TermStructureConsistentModel>(*model_);
-        if (tsmodel) {
-            referenceDate = tsmodel->termStructure()->referenceDate();
-            dayCounter = tsmodel->termStructure()->dayCounter();
-        } else {
-            referenceDate = termStructure_->referenceDate();
-            dayCounter = termStructure_->dayCounter();
-        }
+        Handle<YieldTermStructure> discountCurve =
+            tsmodel != nullptr ? tsmodel->termStructure() : termStructure_;
+
+        Date referenceDate = discountCurve->referenceDate();
+        DayCounter dayCounter = discountCurve->dayCounter();
 
         DiscretizedCallableFixedRateBond callableBond(arguments_,
                                                       referenceDate,
                                                       dayCounter);
         ext::shared_ptr<Lattice> lattice;
 
-        if (lattice_) {
+        if (lattice_ != nullptr) {
             lattice = lattice_;
         } else {
             std::vector<Time> times = callableBond.mandatoryTimes();
@@ -77,8 +72,7 @@ namespace QuantLib {
         }
 
         if (s != 0.0) {
-            OneFactorModel::ShortRateTree *sr=
-                dynamic_cast<OneFactorModel::ShortRateTree*>(&(*lattice));
+            auto* sr = dynamic_cast<OneFactorModel::ShortRateTree*>(&(*lattice));
             QL_REQUIRE(sr,
                        "Spread is not supported for trees other than OneFactorModel");
             sr->setSpread(s);
@@ -89,7 +83,10 @@ namespace QuantLib {
                                     arguments_.redemptionDate);
         callableBond.initialize(lattice, redemptionTime);
         callableBond.rollback(0.0);
-        results_.value = results_.settlementValue = callableBond.presentValue();
+        results_.value = callableBond.presentValue();
+
+        DiscountFactor d = discountCurve->discount(arguments_.settlementDate);
+        results_.settlementValue = results_.value / d;
     }
 
 }

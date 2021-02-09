@@ -114,7 +114,7 @@ namespace QuantLib {
         // and it is a coupon then add the accrued coupon
         if (i<bondLeg.end()-1) {
             ext::shared_ptr<Coupon> c = ext::dynamic_pointer_cast<Coupon>(*i);
-            if (c) {
+            if (c != nullptr) {
                 ext::shared_ptr<CashFlow> accruedCoupon(new
                     SimpleCashFlow(c->accruedAmount(dealMaturity), finalDate));
                 legs_[0].push_back(accruedCoupon);
@@ -226,7 +226,7 @@ namespace QuantLib {
             registerWith(*i);
 
         const Leg& bondLeg = bond_->cashflows();
-        for (Leg::const_iterator i=bondLeg.begin(); i<bondLeg.end(); ++i) {
+        for (auto i = bondLeg.begin(); i < bondLeg.end(); ++i) {
             // whatever might be the choice for the discounting engine
             // bond flows on upfrontDate_ must be discarded
             bool upfrontDateBondFlows = false;
@@ -274,10 +274,9 @@ namespace QuantLib {
 
         Swap::setupArguments(args);
 
-        AssetSwap::arguments* arguments =
-            dynamic_cast<AssetSwap::arguments*>(args);
+        auto* arguments = dynamic_cast<AssetSwap::arguments*>(args);
 
-        if (!arguments)  // it's a swap engine...
+        if (arguments == nullptr) // it's a swap engine...
             return;
 
         const Leg& fixedCoupons = bondLeg();
@@ -389,9 +388,8 @@ namespace QuantLib {
 
     void AssetSwap::fetchResults(const PricingEngine::results* r) const {
         Swap::fetchResults(r);
-        const AssetSwap::results* results =
-            dynamic_cast<const AssetSwap::results*>(r);
-        if (results) {
+        const auto* results = dynamic_cast<const AssetSwap::results*>(r);
+        if (results != nullptr) {
             fairSpread_ = results->fairSpread;
             fairCleanPrice_= results->fairCleanPrice;
             fairNonParRepayment_= results->fairNonParRepayment;

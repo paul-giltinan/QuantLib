@@ -43,16 +43,15 @@ namespace QuantLib {
             meta information that can be used by client classes. Note
             that neither the list of dates nor the meta information is
             checked for plausibility in any sense. */
-        Schedule(const std::vector<Date>&,
-                 const Calendar& calendar = NullCalendar(),
-                 const BusinessDayConvention
-                                    convention = Unadjusted,
-                 boost::optional<BusinessDayConvention>
-                     terminationDateConvention = boost::none,
-                 const boost::optional<Period> tenor = boost::none,
-                 boost::optional<DateGeneration::Rule> rule = boost::none,
-                 boost::optional<bool> endOfMonth = boost::none,
-                 const std::vector<bool>& isRegular = std::vector<bool>(0));
+        Schedule(
+            const std::vector<Date>&,
+            const Calendar& calendar = NullCalendar(),
+            BusinessDayConvention convention = Unadjusted,
+            const boost::optional<BusinessDayConvention>& terminationDateConvention = boost::none,
+            const boost::optional<Period>& tenor = boost::none,
+            const boost::optional<DateGeneration::Rule>& rule = boost::none,
+            const boost::optional<bool>& endOfMonth = boost::none,
+            const std::vector<bool>& isRegular = std::vector<bool>(0));
         /*! rule based constructor */
         Schedule(Date effectiveDate,
                  const Date& terminationDate,
@@ -104,6 +103,7 @@ namespace QuantLib {
         //! \name Utilities
         //@{
         //! truncated schedule
+        Schedule after(const Date& truncationDate) const;
         Schedule until(const Date& truncationDate) const;
         //@}
       private:
@@ -151,7 +151,10 @@ namespace QuantLib {
         Date firstDate_, nextToLastDate_;
     };
 
-
+    /*! Helper function for returning the date on or before date \p d that is the 20th of the month and obeserves the 
+        given date generation \p rule if it is relevant.
+    */
+    Date previousTwentieth(const Date& d, DateGeneration::Rule rule);
 
     // inline definitions
 

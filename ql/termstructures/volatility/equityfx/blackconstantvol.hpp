@@ -56,19 +56,20 @@ namespace QuantLib {
                          const DayCounter& dayCounter);
         //! \name TermStructure interface
         //@{
-        Date maxDate() const;
+        Date maxDate() const override;
         //@}
         //! \name VolatilityTermStructure interface
         //@{
-        Real minStrike() const;
-        Real maxStrike() const;
+        Real minStrike() const override;
+        Real maxStrike() const override;
         //@}
         //! \name Visitability
         //@{
-        virtual void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
       protected:
-        virtual Volatility blackVolImpl(Time t, Real) const;
+        Volatility blackVolImpl(Time t, Real) const override;
+
       private:
         Handle<Quote> volatility_;
     };
@@ -121,9 +122,8 @@ namespace QuantLib {
     }
 
     inline void BlackConstantVol::accept(AcyclicVisitor& v) {
-        Visitor<BlackConstantVol>* v1 =
-            dynamic_cast<Visitor<BlackConstantVol>*>(&v);
-        if (v1 != 0)
+        auto* v1 = dynamic_cast<Visitor<BlackConstantVol>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             BlackVolatilityTermStructure::accept(v);

@@ -48,9 +48,10 @@ namespace QuantLib {
         /*! the automatically generated destructor would
             not have the throw specifier.
         */
-        ~Error() throw() {}
+        ~Error() throw() override {}
         //! returns the error message.
-        const char* what() const throw ();
+        const char* what() const throw() override;
+
       private:
         ext::shared_ptr<std::string> message_;
     };
@@ -62,8 +63,7 @@ namespace QuantLib {
 */
 #define MULTILINE_MACRO_BEGIN do {
 
-#if defined(BOOST_MSVC) && BOOST_MSVC >= 1500
-    /* __pragma is available from VC++9 */
+#if defined(BOOST_MSVC)
     #define MULTILINE_MACRO_END \
         __pragma(warning(push)) \
         __pragma(warning(disable:4127)) \

@@ -41,10 +41,12 @@
 #include <ql/instruments/vanillaoption.hpp>
 #include <ql/pricingengines/vanilla/analyticeuropeanengine.hpp>
 #include <ql/models/equity/hestonmodel.hpp>
+#include <ql/experimental/barrieroption/mcdoublebarrierengine.hpp>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
+#undef REPORT_FAILURE
 #define REPORT_FAILURE(greekName, barrierType, barrierlo, barrierhi, \
                        payoff, exercise, s, q, r, today, v, expected, \
                        calculated, error, tolerance) \
@@ -66,6 +68,7 @@ using namespace boost::unit_test_framework;
                << "    error:            " << error << "\n" \
                << "    tolerance:        " << tolerance);
 
+#undef REPORT_FAILURE_VANNAVOLGA
 #define REPORT_FAILURE_VANNAVOLGA(greekName, barrierType, \
                                   barrier1, barrier2, rebate, payoff, \
                                   exercise, s, q, r, today, \
@@ -94,7 +97,14 @@ using namespace boost::unit_test_framework;
                << "    error:            " << error << "\n" \
                << "    tolerance:        " << tolerance);
 
-namespace {
+#undef REPORT_FAILURE_DOUBLE_BARRIER_MC
+#define REPORT_FAILURE_DOUBLE_BARRIER_MC(analytical, monteCarlo, diff) \
+    BOOST_ERROR("\n" <<"Double Barrier Option " \
+                << "Threshold exceeded: " << diff << "\n" \
+                << "Analytical: " << analytical << "\n" \
+                << "Monte Carlo: " << monteCarlo << "\n");
+
+namespace double_barrier_option_test {
 
     struct NewBarrierOptionData {
         DoubleBarrier::Type barrierType;
@@ -137,6 +147,8 @@ namespace {
 void DoubleBarrierOptionTest::testEuropeanHaugValues() {
 
     BOOST_TEST_MESSAGE("Testing double barrier european options against Haug's values...");
+
+    using namespace double_barrier_option_test;
 
     Exercise::Type european = Exercise::European;
     NewBarrierOptionData values[] = {
@@ -268,7 +280,7 @@ void DoubleBarrierOptionTest::testEuropeanHaugValues() {
     ext::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -388,6 +400,8 @@ void DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues() {
     BOOST_TEST_MESSAGE(
          "Testing double-barrier FX options against Vanna/Volga values...");
 
+    using namespace double_barrier_option_test;
+
     SavedSettings backup;
 
     DoubleBarrierFxOptionData values[] = {
@@ -437,7 +451,7 @@ void DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues() {
 
         for (Size j=0; j<=1; j++) {
 
-           DoubleBarrier::Type barrierType = static_cast<DoubleBarrier::Type>(j);
+            auto barrierType = static_cast<DoubleBarrier::Type>(j);
 
             spot->setValue(values[i].s);
             qRate->setValue(values[i].q);
@@ -450,7 +464,7 @@ void DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues() {
                 ext::make_shared<PlainVanillaPayoff>(values[i].type,
                                                        values[i].strike);
 
-            Date exDate = today + Integer(values[i].t*365+0.5);
+            Date exDate = today + timeToDays(values[i].t, 365);
             ext::shared_ptr<Exercise> exercise =
                 ext::make_shared<EuropeanExercise>(exDate);
 
@@ -547,8 +561,115 @@ void DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues() {
     }
 }
 
+void DoubleBarrierOptionTest::testMonteCarloDoubleBarrierWithAnalytical() {
+    BOOST_TEST_MESSAGE("Testing MC double-barrier options against analytical values...");
+
+    using namespace double_barrier_option_test;
+
+    SavedSettings backup;
+
+    Real tolerance = 0.01; //percentage difference between analytical and monte carlo values to be tolerated
+
+    // set up dates
+    Calendar calendar = TARGET();
+    Date todaysDate(15, May, 1998);
+    Date settlementDate(17, May, 1998);
+    Settings::instance().evaluationDate() = todaysDate;
+
+    // our options
+    Option::Type type(Option::Put);
+    Real underlying = 36;
+    Real strike = 40;
+    Spread dividendYield = 0.00;
+    Rate riskFreeRate = 0.06;
+    Volatility volatility = 0.20;
+    Date maturity(17, May, 1999);
+    DayCounter dayCounter = Actual365Fixed();
+
+    std::vector<Date> exerciseDates;
+    for (Integer i=1; i<=4; i++)
+        exerciseDates.push_back(settlementDate + 3*i*Months);
+
+    ext::shared_ptr<Exercise> europeanExercise(
+        new EuropeanExercise(maturity));
+
+    Handle<Quote> underlyingH(
+        ext::shared_ptr<Quote>(new SimpleQuote(underlying)));
+
+    // bootstrap the yield/dividend/vol curves
+    Handle<YieldTermStructure> flatTermStructure(
+        ext::shared_ptr<YieldTermStructure>(
+            new FlatForward(settlementDate, riskFreeRate, dayCounter)));
+    Handle<YieldTermStructure> flatDividendTS(
+        ext::shared_ptr<YieldTermStructure>(
+            new FlatForward(settlementDate, dividendYield, dayCounter)));
+    Handle<BlackVolTermStructure> flatVolTS(
+        ext::shared_ptr<BlackVolTermStructure>(
+            new BlackConstantVol(settlementDate, calendar, volatility,
+                                 dayCounter)));
+    ext::shared_ptr<StrikedTypePayoff> payoff(
+        new PlainVanillaPayoff(type, strike));
+    ext::shared_ptr<BlackScholesMertonProcess> bsmProcess(
+        new BlackScholesMertonProcess(underlyingH, flatDividendTS,
+                                      flatTermStructure, flatVolTS));
+
+    Real barrierLow = underlying * 0.9;
+    Real barrierHigh = underlying * 1.1;
+
+    DoubleBarrierOption knockIndoubleBarrierOption(DoubleBarrier::KnockIn,
+                                                   barrierLow,
+                                                   barrierHigh,
+                                                   0,
+                                                   payoff,
+                                                   europeanExercise);
+
+    ext::shared_ptr<PricingEngine> analyticdoublebarrierengine(new AnalyticDoubleBarrierEngine(bsmProcess));
+    knockIndoubleBarrierOption.setPricingEngine(analyticdoublebarrierengine);
+    Real analytical = knockIndoubleBarrierOption.NPV();
+
+    ext::shared_ptr<PricingEngine> mcdoublebarrierengine;
+    mcdoublebarrierengine = MakeMCDoubleBarrierEngine<PseudoRandom>(bsmProcess)
+        .withSteps(10000)
+        .withAntitheticVariate()
+        .withAbsoluteTolerance(0.5)
+        .withSeed(1);
+    knockIndoubleBarrierOption.setPricingEngine(mcdoublebarrierengine);
+    Real monteCarlo = knockIndoubleBarrierOption.NPV();
+
+    Real percentageDiff = std::abs(analytical - monteCarlo) / analytical;
+
+    if (percentageDiff > tolerance){
+        REPORT_FAILURE_DOUBLE_BARRIER_MC(analytical, monteCarlo, percentageDiff);
+    }
+
+    DoubleBarrierOption knockOutDoubleBarrierOption(DoubleBarrier::KnockOut,
+                                                    barrierLow,
+                                                    barrierHigh,
+                                                    0,
+                                                    payoff,
+                                                    europeanExercise);
+
+    knockOutDoubleBarrierOption.setPricingEngine(analyticdoublebarrierengine);
+    analytical = knockOutDoubleBarrierOption.NPV();
+
+    mcdoublebarrierengine = MakeMCDoubleBarrierEngine<PseudoRandom>(bsmProcess)
+        .withSteps(10000)
+        .withAntitheticVariate()
+        .withAbsoluteTolerance(0.005)
+        .withSeed(3);
+    knockOutDoubleBarrierOption.setPricingEngine(mcdoublebarrierengine);
+    monteCarlo = knockOutDoubleBarrierOption.NPV();
+
+    percentageDiff = std::abs(analytical - monteCarlo) / analytical;
+
+    if (percentageDiff > tolerance){
+        REPORT_FAILURE_DOUBLE_BARRIER_MC(analytical, monteCarlo, percentageDiff);
+    }
+
+}
+
 test_suite* DoubleBarrierOptionTest::suite(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("DoubleBarrier");
+    auto* suite = BOOST_TEST_SUITE("DoubleBarrier");
 
     if (speed <= Fast) {
         suite->add(QUANTLIB_TEST_CASE(
@@ -559,8 +680,10 @@ test_suite* DoubleBarrierOptionTest::suite(SpeedLevel speed) {
 }
 
 test_suite* DoubleBarrierOptionTest::experimental() {
-    test_suite* suite = BOOST_TEST_SUITE("DoubleBarrier_experimental");
+    auto* suite = BOOST_TEST_SUITE("DoubleBarrier_experimental");
     suite->add(QUANTLIB_TEST_CASE(
                       &DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues));
+    suite->add(QUANTLIB_TEST_CASE(
+                   &DoubleBarrierOptionTest::testMonteCarloDoubleBarrierWithAnalytical));
     return suite;
 }

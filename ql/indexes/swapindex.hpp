@@ -42,7 +42,7 @@ namespace QuantLib {
         SwapIndex(const std::string& familyName,
                   const Period& tenor,
                   Natural settlementDays,
-                  Currency currency,
+                  const Currency& currency,
                   const Calendar& fixingCalendar,
                   const Period& fixedLegTenor,
                   BusinessDayConvention fixedLegConvention,
@@ -51,7 +51,7 @@ namespace QuantLib {
         SwapIndex(const std::string& familyName,
                   const Period& tenor,
                   Natural settlementDays,
-                  Currency currency,
+                  const Currency& currency,
                   const Calendar& fixingCalendar,
                   const Period& fixedLegTenor,
                   BusinessDayConvention fixedLegConvention,
@@ -60,7 +60,7 @@ namespace QuantLib {
                   const Handle<YieldTermStructure>& discountingTermStructure);
         //! \name InterestRateIndex interface
         //@{
-        Date maturityDate(const Date& valueDate) const;
+        Date maturityDate(const Date& valueDate) const override;
         //@}
         //! \name Inspectors
         //@{
@@ -90,7 +90,7 @@ namespace QuantLib {
                         const Period& tenor) const;
         // @}
       protected:
-        Rate forecastFixing(const Date& fixingDate) const;
+        Rate forecastFixing(const Date& fixingDate) const override;
         Period tenor_;
         ext::shared_ptr<IborIndex> iborIndex_;
         Period fixedLegTenor_;
@@ -111,7 +111,7 @@ namespace QuantLib {
                   const std::string& familyName,
                   const Period& tenor,
                   Natural settlementDays,
-                  Currency currency,
+                  const Currency& currency,
                   const ext::shared_ptr<OvernightIndex>& overnightIndex,
                   bool telescopicValueDates = false);
         //! \name Inspectors

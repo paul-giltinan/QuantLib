@@ -270,17 +270,13 @@ void NormalCLVModelTest::testIllustrative1DExample() {
     }
 }
 
-namespace {
+namespace normal_clv_model_test {
     class CLVModelPayoff : public PlainVanillaPayoff {
       public:
-        CLVModelPayoff(Option::Type type, Real strike,
-                             const ext::function<Real(Real)> g)
-        : PlainVanillaPayoff(type, strike),
-          g_(g) { }
+        CLVModelPayoff(Option::Type type, Real strike, const ext::function<Real(Real)>& g)
+        : PlainVanillaPayoff(type, strike), g_(g) {}
 
-        Real operator()(Real x) const {
-            return PlainVanillaPayoff::operator()(g_(x));
-        }
+        Real operator()(Real x) const override { return PlainVanillaPayoff::operator()(g_(x)); }
 
       private:
         const ext::function<Real(Real)> g_;
@@ -291,6 +287,7 @@ void NormalCLVModelTest::testMonteCarloBSOptionPricing() {
     BOOST_TEST_MESSAGE("Testing Monte Carlo BS option pricing...");
 
     using namespace ext::placeholders;
+    using namespace normal_clv_model_test;
 
     SavedSettings backup;
 
@@ -554,7 +551,7 @@ void NormalCLVModelTest::testMoustacheGraph() {
 }
 
 test_suite* NormalCLVModelTest::experimental(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("NormalCLVModel tests");
+    auto* suite = BOOST_TEST_SUITE("NormalCLVModel tests");
 
     suite->add(QUANTLIB_TEST_CASE(
         &NormalCLVModelTest::testBSCumlativeDistributionFunction));

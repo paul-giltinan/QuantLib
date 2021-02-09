@@ -49,9 +49,8 @@ namespace QuantLib {
                 const ext::shared_ptr<SwaptionVolatilityStructure>&
                                                          volatilityStructure);
 
-        Real operator()(Real strike,
-                        Option::Type optionType,
-                        Real deflator) const;
+        Real operator()(Real strike, Option::Type optionType, Real deflator) const override;
+
       private:
         Rate forwardValue_;
         Date expiryDate_;
@@ -93,9 +92,10 @@ namespace QuantLib {
                               Real delta,
                               Size swapLength)
             : q_(q), delta_(delta), swapLength_(swapLength) {}
-            Real operator()(Real x);
-            Real firstDerivative(Real x);
-            Real secondDerivative(Real x);
+            Real operator()(Real x) override;
+            Real firstDerivative(Real x) override;
+            Real secondDerivative(Real x) override;
+
           protected:
             /* number of period per year */
             const int q_;
@@ -109,9 +109,10 @@ namespace QuantLib {
         class GFunctionExactYield : public GFunction {
           public:
             GFunctionExactYield(const CmsCoupon& coupon);
-            Real operator()(Real x) ;
-            Real firstDerivative(Real x);
-            Real secondDerivative(Real x);
+            Real operator()(Real x) override;
+            Real firstDerivative(Real x) override;
+            Real secondDerivative(Real x) override;
+
           protected:
             /* fraction of a period between the swap start date and
                the pay date  */
@@ -169,9 +170,9 @@ namespace QuantLib {
           public:
             GFunctionWithShifts(const CmsCoupon& coupon,
                                 const Handle<Quote>& meanReversion);
-            Real operator()(Real x) ;
-            Real firstDerivative(Real x);
-            Real secondDerivative(Real x);
+            Real operator()(Real x) override;
+            Real firstDerivative(Real x) override;
+            Real secondDerivative(Real x) override;
         };
 
     };
@@ -199,26 +200,27 @@ namespace QuantLib {
     class HaganPricer: public CmsCouponPricer, public MeanRevertingPricer {
       public:
         /* */
-        virtual Real swapletPrice() const = 0;
-        virtual Rate swapletRate() const;
-        virtual Real capletPrice(Rate effectiveCap) const;
-        virtual Rate capletRate(Rate effectiveCap) const;
-        virtual Real floorletPrice(Rate effectiveFloor) const;
-        virtual Rate floorletRate(Rate effectiveFloor) const;
+        Real swapletPrice() const override = 0;
+        Rate swapletRate() const override;
+        Real capletPrice(Rate effectiveCap) const override;
+        Rate capletRate(Rate effectiveCap) const override;
+        Real floorletPrice(Rate effectiveFloor) const override;
+        Rate floorletRate(Rate effectiveFloor) const override;
         /* */
-        Real meanReversion() const;
-        void setMeanReversion(const Handle<Quote>& meanReversion) {
+        Real meanReversion() const override;
+        void setMeanReversion(const Handle<Quote>& meanReversion) override {
             unregisterWith(meanReversion_);
             meanReversion_ = meanReversion;
             registerWith(meanReversion_);
             update();
         };
+
       protected:
         HaganPricer(
                 const Handle<SwaptionVolatilityStructure>& swaptionVol,
                 GFunctionFactory::YieldCurveModel modelOfYieldCurve,
                 const Handle<Quote>& meanReversion);
-        void initialize(const FloatingRateCoupon& coupon);
+        void initialize(const FloatingRateCoupon& coupon) override;
 
         virtual Real optionletPrice(Option::Type optionType,
                                     Real strike) const = 0;
@@ -257,10 +259,10 @@ namespace QuantLib {
             Real precision = 1.0e-6,
             Real hardUpperLimit = QL_MAX_REAL);
 
-       Real upperLimit() { return upperLimit_; }
-       Real stdDeviations() { return stdDeviationsForUpperLimit_; }
+        Real upperLimit() const { return upperLimit_; }
+        Real stdDeviations() const { return stdDeviationsForUpperLimit_; }
 
-      //private:
+        // private:
         class Function {
           public:
             typedef Real argument_type;
@@ -282,11 +284,12 @@ namespace QuantLib {
                        Real forwardValue,
                        Real strike,
                        Option::Type optionType);
-            Real operator()(Real x) const;
+            Real operator()(Real x) const override;
+
           protected:
-            Real functionF(const Real x) const;
-            Real firstDerivativeOfF(const Real x) const;
-            Real secondDerivativeOfF(const Real x) const;
+            Real functionF(Real x) const;
+            Real firstDerivativeOfF(Real x) const;
+            Real secondDerivativeOfF(Real x) const;
 
             Real strike() const;
             Real annuity() const;
@@ -304,9 +307,8 @@ namespace QuantLib {
         Real integrate(Real a,
                        Real b,
                        const ConundrumIntegrand& Integrand) const;
-        virtual Real optionletPrice(Option::Type optionType,
-                                    Rate strike) const;
-        virtual Real swapletPrice() const;
+        Real optionletPrice(Option::Type optionType, Rate strike) const override;
+        Real swapletPrice() const override;
         Real resetUpperLimit(Real stdDeviationsForUpperLimit) const;
         Real refineIntegration(Real integralValue, const ConundrumIntegrand& integrand) const;
 
@@ -323,9 +325,8 @@ namespace QuantLib {
             GFunctionFactory::YieldCurveModel modelOfYieldCurve,
             const Handle<Quote>& meanReversion);
       protected:
-        Real optionletPrice(Option::Type optionType,
-                            Real strike) const;
-        Real swapletPrice() const;
+        Real optionletPrice(Option::Type optionType, Real strike) const override;
+        Real swapletPrice() const override;
     };
 
 }

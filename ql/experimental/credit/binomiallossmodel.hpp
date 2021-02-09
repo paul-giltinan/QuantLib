@@ -66,14 +66,15 @@ namespace QuantLib {
             const ext::shared_ptr<LLM>& copula)
         : copula_(copula) { }
     private:
-        void resetModel() {
-            /* say there are defaults and these havent settled... and this is 
-            the engine to compute them.... is this the wrong place?:*/
-            attachAmount_ = basket_->remainingAttachmentAmount();
-            detachAmount_ = basket_->remainingDetachmentAmount();
+      void resetModel() override {
+          /* say there are defaults and these havent settled... and this is
+          the engine to compute them.... is this the wrong place?:*/
+          attachAmount_ = basket_->remainingAttachmentAmount();
+          detachAmount_ = basket_->remainingDetachmentAmount();
 
-            copula_->resetBasket(basket_.currentLink());// forces interface
-        }
+          copula_->resetBasket(basket_.currentLink()); // forces interface
+      }
+
     protected:
         /*! Returns the probability of the default loss values given by the 
             method lossPoints.
@@ -105,13 +106,12 @@ namespace QuantLib {
         //! attainable loss points this model provides
         Disposable<std::vector<Real> > lossPoints(const Date&) const;
         //! Returns the cumulative full loss distribution
-        Disposable<std::map<Real, Probability> > 
-            lossDistribution(const Date& d) const;
+        Disposable<std::map<Real, Probability> > lossDistribution(const Date& d) const override;
         //! Loss level for this percentile
-        Real percentile(const Date& d, Real percentile) const;
-        Real expectedShortfall(const Date&d, Real percentile) const;
-        Real expectedTrancheLoss(const Date& d) const;
-    protected:
+        Real percentile(const Date& d, Real percentile) const override;
+        Real expectedShortfall(const Date& d, Real percentile) const override;
+        Real expectedTrancheLoss(const Date& d) const override;
+
         // Model internal workings ----------------
         //! Average loss per credit.
         Real averageLoss(const Date&, const std::vector<Real>& reminingNots, 
@@ -143,7 +143,7 @@ namespace QuantLib {
                 const std::vector<Real>& bsktNots,
                 const std::vector<Real>& uncondDefProbInv, 
                             const std::vector<Real>&  mktFactor) const;
-    protected:
+
         const ext::shared_ptr<LLM> copula_;
 
         // cached arguments:

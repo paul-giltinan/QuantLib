@@ -31,9 +31,8 @@ namespace QuantLib {
       startDate_(startDate), maturityDate_(maturityDate) {}
 
     void VarianceOption::setupArguments(PricingEngine::arguments* args) const {
-        VarianceOption::arguments* arguments =
-            dynamic_cast<VarianceOption::arguments*>(args);
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        auto* arguments = dynamic_cast<VarianceOption::arguments*>(args);
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
 
         arguments->payoff = payoff_;
         arguments->notional = notional_;

@@ -36,6 +36,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
+#undef REPORT_FAILURE
 #define REPORT_FAILURE(greekName, payoff, exercise, barrierType, barrier, s, q,\
                         r, today, v, expected, calculated, error, tolerance) \
     BOOST_FAIL(payoff->optionType() << " option with " \
@@ -54,7 +55,7 @@ using namespace boost::unit_test_framework;
                << "    error:            " << error << "\n" \
                << "    tolerance:        " << tolerance << "\n");
 
-namespace {
+namespace binary_option_test {
 
     std::string barrierTypeToString(Barrier::Type type) {
         switch(type){
@@ -91,6 +92,8 @@ namespace {
 void BinaryOptionTest::testCashOrNothingHaugValues() {
 
     BOOST_TEST_MESSAGE("Testing cash-or-nothing barrier options against Haug's values...");
+
+    using namespace binary_option_test;
 
     BinaryOptionData values[] = {
         /* The data below are from
@@ -153,7 +156,7 @@ void BinaryOptionTest::testCashOrNothingHaugValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, values[i].cash));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + timeToDays(values[i].t);
         ext::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate,
                                                                     true));
@@ -193,6 +196,8 @@ void BinaryOptionTest::testCashOrNothingHaugValues() {
 void BinaryOptionTest::testAssetOrNothingHaugValues() {
 
     BOOST_TEST_MESSAGE("Testing asset-or-nothing barrier options against Haug's values...");
+
+    using namespace binary_option_test;
 
     BinaryOptionData values[] = {
         /* The data below are from
@@ -239,10 +244,8 @@ void BinaryOptionTest::testAssetOrNothingHaugValues() {
         ext::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
-        ext::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
-                                                                    exDate,
-                                                                    true));
+        Date exDate = today + timeToDays(values[i].t);
+        ext::shared_ptr<Exercise> amExercise(new AmericanExercise(today, exDate, true));
 
         spot ->setValue(values[i].s);
         qRate->setValue(values[i].q);
@@ -277,7 +280,7 @@ void BinaryOptionTest::testAssetOrNothingHaugValues() {
 }
 
 test_suite* BinaryOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Binary");
+    auto* suite = BOOST_TEST_SUITE("Binary");
     suite->add(QUANTLIB_TEST_CASE(&BinaryOptionTest::testCashOrNothingHaugValues));
     suite->add(QUANTLIB_TEST_CASE(&BinaryOptionTest::testAssetOrNothingHaugValues));
     return suite;

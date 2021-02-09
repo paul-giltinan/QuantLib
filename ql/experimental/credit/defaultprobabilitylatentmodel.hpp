@@ -94,13 +94,13 @@ namespace QuantLib {
         /* To interface with loss models. It is possible to change the basket 
         since there are no cached magnitudes.
         */
-        void resetBasket(const ext::shared_ptr<Basket> basket) const {
+        void resetBasket(const ext::shared_ptr<Basket>& basket) const {
             basket_ = basket;
             // in the future change 'size' to 'liveSize'
             QL_REQUIRE(basket_->size() == factorWeights_.size(), 
                 "Incompatible new basket and model sizes.");
         }
-    public:
+
         /*! Returns the probability of default of a given name conditional on
         the realization of a given set of values of the model independent
         factors. The date at which the probability is given is implicit in the
@@ -128,10 +128,12 @@ namespace QuantLib {
                 inverseCumulativeY(prob, iName), iName, mktFactors);
         }
     protected:
-        void update() {
-            if(basket_) basket_->notifyObservers();
-            LatentModel<copulaPolicy>::update();
-        }
+      void update() override {
+          if (basket_ != nullptr)
+              basket_->notifyObservers();
+          LatentModel<copulaPolicy>::update();
+      }
+
     public:// open since users access it for performance on joint integrations.
 
         /*! Returns the probability of default of a given name conditional on
@@ -200,14 +202,13 @@ namespace QuantLib {
         Real conditionalProbAtLeastNEvents(Size n, const Date& date,
             const std::vector<Real>& mktFactors) const;
         //! access to integration:
-        const ext::shared_ptr<LMIntegration>& 
-            integration() const { return integration_; }
-    public:
+        const ext::shared_ptr<LMIntegration>& integration() const override { return integration_; }
+
+      public:
         /*! Computes the unconditional probability of default of a given name. 
         Trivial method for testing
         */
         Probability probOfDefault(Size iName, const Date& d) const {
-            using namespace ext::placeholders;
             QL_REQUIRE(basket_, "No portfolio basket set.");
             const ext::shared_ptr<Pool>& pool = basket_->pool();
             // avoid repeating this in the integration:
@@ -224,7 +225,7 @@ namespace QuantLib {
                 this,
                 inverseCumulativeY(pUncond, iName),
                 iName, 
-                _1)
+                ext::placeholders::_1)
               ));
         }
         /*! Pearsons' default probability correlation. 
@@ -239,7 +240,6 @@ namespace QuantLib {
         defaults in the basket portfolio at a given time.
         */
         Probability probAtLeastNEvents(Size n, const Date& date) const {
-            using namespace ext::placeholders;
             return integratedExpectedValue(
              ext::function<Real (const std::vector<Real>& v1)>(
               ext::bind(
@@ -247,7 +247,7 @@ namespace QuantLib {
               this,
               n,
               ext::cref(date),
-              _1)
+              ext::placeholders::_1)
              ));
         }
     };
@@ -259,7 +259,6 @@ namespace QuantLib {
     Real DefaultLatentModel<CP>::defaultCorrelation(const Date& d, 
         Size iNamei, Size iNamej) const 
     {
-        using namespace ext::placeholders;
         QL_REQUIRE(basket_, "No portfolio basket set.");
 
         const ext::shared_ptr<Pool>& pool = basket_->pool();
@@ -280,7 +279,8 @@ namespace QuantLib {
               ext::function<Real (const std::vector<Real>& v1)>(
                 ext::bind(
                 &DefaultLatentModel<CP>::condProbProduct,
-                this, invPi, invPj, iNamei, iNamej, _1) ));
+                this, invPi, invPj, iNamei, iNamej,
+                ext::placeholders::_1) ));
         }else{
             E1i1j = pi;
         }
@@ -305,8 +305,7 @@ namespace QuantLib {
             Size poolSize = basket_->size();//move to 'livesize'
             const ext::shared_ptr<Pool>& pool = basket_->pool();
 
-            BigNatural limit = 
-                static_cast<BigNatural>(std::pow(2., (int)(poolSize)));
+            auto limit = static_cast<BigNatural>(std::pow(2., (int)(poolSize)));
 
             // Precalc conditional probabilities
             std::vector<Probability> pDefCond;
@@ -317,10 +316,8 @@ namespace QuantLib {
                     defaultProbability(date), i, mktFactors));
 
             Probability probNEventsOrMore = 0.;
-            for(BigNatural mask = 
-                  static_cast<BigNatural>(std::pow(2., (int)(n))-1);
-                mask < limit; mask++) 
-            {
+            for (auto mask = static_cast<BigNatural>(std::pow(2., (int)(n)) - 1); mask < limit;
+                 mask++) {
                 // cheap permutations
                 boost::dynamic_bitset<> bsetMask(poolSize, mask);
                 if(bsetMask.count() >= n) {

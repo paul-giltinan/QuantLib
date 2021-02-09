@@ -74,11 +74,9 @@ namespace QuantLib {
                            "Z value matrix has wrong number of columns");
             }
 
-            void calculate() {
-                updateAlphaVec();
-            }
+            void calculate() override { updateAlphaVec(); }
 
-            Real value(Real x1, Real x2) const {
+            Real value(Real x1, Real x2) const override {
 
                 Real res=0.0;
 
@@ -174,7 +172,6 @@ namespace QuantLib {
                 }
             }
 
-          private:
 
             Size xSize_,ySize_,xySize_;
             Real invPrec_;

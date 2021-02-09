@@ -41,10 +41,9 @@ namespace QuantLib {
 
         swap_->setupArguments(args);
 
-        FloatFloatSwaption::arguments *arguments =
-            dynamic_cast<FloatFloatSwaption::arguments *>(args);
+        auto* arguments = dynamic_cast<FloatFloatSwaption::arguments*>(args);
 
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
 
         arguments->swap = swap_;
         arguments->exercise = exercise_;
@@ -62,8 +61,8 @@ namespace QuantLib {
 
     Disposable<std::vector<ext::shared_ptr<BlackCalibrationHelper> > >
     FloatFloatSwaption::calibrationBasket(
-        ext::shared_ptr<SwapIndex> standardSwapBase,
-        ext::shared_ptr<SwaptionVolatilityStructure> swaptionVolatility,
+        const ext::shared_ptr<SwapIndex>& standardSwapBase,
+        const ext::shared_ptr<SwaptionVolatilityStructure>& swaptionVolatility,
         const BasketGeneratingEngine::CalibrationBasketType basketType) const {
 
         ext::shared_ptr<BasketGeneratingEngine> engine =

@@ -31,7 +31,6 @@
 #include <ql/math/randomnumbers/randomsequencegenerator.hpp>
 #include <ql/math/randomnumbers/sobolrsg.hpp>
 #include <ql/utilities/dataformatters.hpp>
-#include <boost/progress.hpp>
 #include <ql/math/randomnumbers/latticerules.hpp>
 #include <ql/math/randomnumbers/latticersg.hpp>
 
@@ -835,8 +834,6 @@ namespace {
                                   #endif
                                   ) {
 
-        QL_TEST_START_TIMING
-
         #ifndef PRINT_ONLY
         Real tolerance = 1.0e-2;
         #endif
@@ -1096,7 +1093,7 @@ void LowDiscrepancyTest::testSobolSkipping() {
 
 
 test_suite* LowDiscrepancyTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Low-discrepancy sequence tests");
+    auto* suite = BOOST_TEST_SUITE("Low-discrepancy sequence tests");
 
     suite->add(QUANTLIB_TEST_CASE(
            &LowDiscrepancyTest::testRandomizedLattices));

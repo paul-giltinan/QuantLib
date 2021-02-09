@@ -49,10 +49,10 @@ namespace QuantLib {
 
     void InflationCoupon::setPricer(const ext::shared_ptr<InflationCouponPricer>& pricer) {
         QL_REQUIRE(checkPricerImpl(pricer),"pricer given is wrong type");
-        if (pricer_)
+        if (pricer_ != nullptr)
             unregisterWith(pricer_);
         pricer_ = pricer;
-        if (pricer_)
+        if (pricer_ != nullptr)
             registerWith(pricer_);
         update();
     }
@@ -70,12 +70,20 @@ namespace QuantLib {
     Real InflationCoupon::accruedAmount(const Date& d) const {
         if (d <= accrualStartDate_ || d > paymentDate_) {
             return 0.0;
-        } else {
-            return nominal() * rate() *
-            dayCounter().yearFraction(accrualStartDate_,
-                                      std::min(d, accrualEndDate_),
+        }else if (tradingExCoupon(d)) {
+            return -nominal() * rate() *
+            dayCounter().yearFraction(d,
+                                      std::max(d, accrualEndDate_),
                                       refPeriodStart_,
                                       refPeriodEnd_);
+        }
+        else {
+            return nominal() * rate() *
+                dayCounter().yearFraction(accrualStartDate_,
+                    std::min(d, accrualEndDate_),
+                    refPeriodStart_,
+                    refPeriodEnd_);
+
         }
     }
 

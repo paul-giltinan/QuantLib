@@ -28,16 +28,16 @@ namespace QuantLib {
         const ext::shared_ptr<SwapSpreadIndex> &index, Real gearing,
         Spread spread, const Date &refPeriodStart,
         const Date &refPeriodEnd,
-        const DayCounter &dayCounter, bool isInArrears)
+        const DayCounter &dayCounter, bool isInArrears, const Date &exCouponDate)
         : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
                              fixingDays, index, gearing, spread,
                              refPeriodStart, refPeriodEnd, dayCounter,
-                             isInArrears),
+                             isInArrears, exCouponDate),
           index_(index) {}
 
     void CmsSpreadCoupon::accept(AcyclicVisitor &v) {
-        Visitor<CmsSpreadCoupon> *v1 = dynamic_cast<Visitor<CmsSpreadCoupon> *>(&v);
-        if (v1 != 0)
+        auto* v1 = dynamic_cast<Visitor<CmsSpreadCoupon>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             FloatingRateCoupon::accept(v);

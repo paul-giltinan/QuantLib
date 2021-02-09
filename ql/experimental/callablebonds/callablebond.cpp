@@ -228,8 +228,7 @@ namespace QuantLib {
 
    Real CallableBond::NPVSpreadHelper::operator()(Real x) const
    {
-       CallableBond::arguments* args=
-           dynamic_cast<CallableBond::arguments*>(bond_.engine_->getArguments());
+       auto* args = dynamic_cast<CallableBond::arguments*>(bond_.engine_->getArguments());
        // Pops the original value when function finishes
        RestoreVal<Spread> restorer(args->spread);
        args->spread=x;
@@ -370,7 +369,11 @@ namespace QuantLib {
                               BusinessDayConvention paymentConvention,
                               Real redemption,
                               const Date& issueDate,
-                              const CallabilitySchedule& putCallSchedule)
+                              const CallabilitySchedule& putCallSchedule,
+                              const Period& exCouponPeriod,
+                              const Calendar& exCouponCalendar,
+                              BusinessDayConvention exCouponConvention,
+                              bool exCouponEndOfMonth)
     : CallableBond(settlementDays, schedule, accrualDayCounter,
                    issueDate, putCallSchedule) {
 
@@ -383,7 +386,11 @@ namespace QuantLib {
                 FixedRateLeg(schedule)
                 .withNotionals(faceAmount)
                 .withCouponRates(coupons, accrualDayCounter)
-                .withPaymentAdjustment(paymentConvention);
+                .withPaymentAdjustment(paymentConvention)
+                .withExCouponPeriod(exCouponPeriod,
+                                    exCouponCalendar,
+                                    exCouponConvention,
+                                    exCouponEndOfMonth);
 
             addRedemptionsToCashflows(std::vector<Real>(1, redemption));
         } else {
@@ -411,7 +418,7 @@ namespace QuantLib {
             if (!cashflows_[i]->hasOccurred(settlement,IncludeToday)) {
                 ext::shared_ptr<Coupon> coupon =
                     ext::dynamic_pointer_cast<Coupon>(cashflows_[i]);
-                if (coupon)
+                if (coupon != nullptr)
                     // !!!
                     return coupon->accruedAmount(settlement) /
                            notional(settlement) * 100.0;
@@ -426,11 +433,11 @@ namespace QuantLib {
     void CallableFixedRateBond::setupArguments(
                                        PricingEngine::arguments* args) const {
 
-        Bond::setupArguments(args);
-        CallableBond::arguments* arguments =
-            dynamic_cast<CallableBond::arguments*>(args);
+        CallableBond::setupArguments(args);
 
-        QL_REQUIRE(arguments != 0, "no arguments given");
+        auto* arguments = dynamic_cast<CallableBond::arguments*>(args);
+
+        QL_REQUIRE(arguments != nullptr, "no arguments given");
 
         Date settlement = arguments->settlementDate;
 
@@ -445,7 +452,8 @@ namespace QuantLib {
         arguments->couponAmounts.reserve(cfs.size()-1);
 
         for (Size i=0; i<cfs.size()-1; i++) {
-            if (!cfs[i]->hasOccurred(settlement, false)) {
+            if (!cfs[i]->hasOccurred(settlement, false)
+                && !cfs[i]->tradingExCoupon(settlement)) {
                 arguments->couponDates.push_back(cfs[i]->date());
                 arguments->couponAmounts.push_back(cfs[i]->amount());
             }
@@ -467,8 +475,7 @@ namespace QuantLib {
                 arguments->callabilityPrices.push_back(
                                        putCallSchedule_[i]->price().amount());
 
-                if (putCallSchedule_[i]->price().type()==
-                    Callability::Price::Clean) {
+                if (putCallSchedule_[i]->price().type() == Bond::Price::Clean) {
                     /* calling accrued() forces accrued interest to be zero
                        if future option date is also coupon date, so that dirty
                        price = clean price. Use here because callability is

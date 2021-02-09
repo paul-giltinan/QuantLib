@@ -42,12 +42,12 @@ namespace QuantLib {
                                DiscreteAveragingAsianOption::results> {
       public:
         // Constructor
-        FdBlackScholesAsianEngine(
+        explicit FdBlackScholesAsianEngine(
                       const ext::shared_ptr<GeneralizedBlackScholesProcess>&,
                       Size tGrid = 100, Size xGrid = 100, Size aGrid = 50,
                       const FdmSchemeDesc& schemeDesc=FdmSchemeDesc::Douglas());
 
-        void calculate() const;
+        void calculate() const override;
 
       private:
         const ext::shared_ptr<GeneralizedBlackScholesProcess> process_;

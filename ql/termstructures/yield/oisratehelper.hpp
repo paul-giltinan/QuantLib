@@ -33,24 +33,26 @@ namespace QuantLib {
     //! Rate helper for bootstrapping over Overnight Indexed Swap rates
     class OISRateHelper : public RelativeDateRateHelper {
       public:
-        OISRateHelper(Natural settlementDays,
-                      const Period& tenor, // swap maturity
-                      const Handle<Quote>& fixedRate,
-                      const ext::shared_ptr<OvernightIndex>& overnightIndex,
-                      // exogenous discounting curve
-                      const Handle<YieldTermStructure>& discountingCurve
-                                               = Handle<YieldTermStructure>(),
-                      bool telescopicValueDates = false,
-                      Natural paymentLag = 0,
-                      BusinessDayConvention paymentConvention = Following,
-                      Frequency paymentFrequency = Annual,
-                      const Calendar& paymentCalendar = Calendar(),
-                      const Period& forwardStart = 0 * Days, 
-                      const Spread overnightSpread = 0.0);
+        OISRateHelper(
+            Natural settlementDays,
+            const Period& tenor, // swap maturity
+            const Handle<Quote>& fixedRate,
+            const ext::shared_ptr<OvernightIndex>& overnightIndex,
+            // exogenous discounting curve
+            const Handle<YieldTermStructure>& discountingCurve = Handle<YieldTermStructure>(),
+            bool telescopicValueDates = false,
+            Natural paymentLag = 0,
+            BusinessDayConvention paymentConvention = Following,
+            Frequency paymentFrequency = Annual,
+            const Calendar& paymentCalendar = Calendar(),
+            const Period& forwardStart = 0 * Days,
+            Spread overnightSpread = 0.0,
+            Pillar::Choice pillar = Pillar::LastRelevantDate,
+            Date customPillarDate = Date());
         //! \name RateHelper interface
         //@{
-        Real impliedQuote() const;
-        void setTermStructure(YieldTermStructure*);
+        Real impliedQuote() const override;
+        void setTermStructure(YieldTermStructure*) override;
         //@}
         //! \name inspectors
         //@{
@@ -58,28 +60,29 @@ namespace QuantLib {
         //@}
         //! \name Visitability
         //@{
-        void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
     protected:
-        void initializeDates();
+      void initializeDates() override;
+      Pillar::Choice pillarChoice_;
 
-        Natural settlementDays_;
-        Period tenor_;
-        ext::shared_ptr<OvernightIndex> overnightIndex_;
+      Natural settlementDays_;
+      Period tenor_;
+      ext::shared_ptr<OvernightIndex> overnightIndex_;
 
-        ext::shared_ptr<OvernightIndexedSwap> swap_;
-        RelinkableHandle<YieldTermStructure> termStructureHandle_;
+      ext::shared_ptr<OvernightIndexedSwap> swap_;
+      RelinkableHandle<YieldTermStructure> termStructureHandle_;
 
-        Handle<YieldTermStructure> discountHandle_;
-        bool telescopicValueDates_;
-        RelinkableHandle<YieldTermStructure> discountRelinkableHandle_;
+      Handle<YieldTermStructure> discountHandle_;
+      bool telescopicValueDates_;
+      RelinkableHandle<YieldTermStructure> discountRelinkableHandle_;
 
-        Natural paymentLag_;
-        BusinessDayConvention paymentConvention_;
-        Frequency paymentFrequency_;
-        Calendar paymentCalendar_;
-        Period forwardStart_;
-        Spread overnightSpread_;
+      Natural paymentLag_;
+      BusinessDayConvention paymentConvention_;
+      Frequency paymentFrequency_;
+      Calendar paymentCalendar_;
+      Period forwardStart_;
+      Spread overnightSpread_;
     };
 
     //! Rate helper for bootstrapping over Overnight Indexed Swap rates
@@ -96,12 +99,12 @@ namespace QuantLib {
                     bool telescopicValueDates = false);
         //! \name RateHelper interface
         //@{
-        Real impliedQuote() const;
-        void setTermStructure(YieldTermStructure*);
+        Real impliedQuote() const override;
+        void setTermStructure(YieldTermStructure*) override;
         //@}
         //! \name Visitability
         //@{
-        void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
     protected:
         ext::shared_ptr<OvernightIndexedSwap> swap_;
